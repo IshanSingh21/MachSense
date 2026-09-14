@@ -1,0 +1,51 @@
+project:
+  name: "MachSense"
+  version: "0.1.0"
+  environment: "development"  # development, staging, production
+  random_seed: 42
+
+paths:
+  data_dir: "data"
+  raw_data_dir: "data/raw"
+  interim_data_dir: "data/interim"
+  processed_data_dir: "data/processed"
+  models_dir: "models"
+  logs_dir: "logs"
+  configs_dir: "configs"
+
+data:
+  target_column: "machine_failure"
+  id_column: "udi"
+  timestamp_column: "timestamp"
+  sampling_rate_hz: 10
+  validation_split: 0.2
+  test_split: 0.1
+
+features:
+  numerical_features:
+    - "air_temperature_k"
+    - "process_temperature_k"
+    - "rotational_speed_rpm"
+    - "torque_nm"
+    - "tool_wear_min"
+  categorical_features:
+    - "type"
+  scaling_method: "standard"  # standard, robust, minmax
+
+model:
+  name: "random_forest_baseline"
+  type: "classifier"
+  params:
+    n_estimators: 100
+    max_depth: 10
+    random_state: 42
+    class_weight: "balanced"
+  explainability:
+    enabled: true
+    method: "shap"
+
+serving:
+  host: "127.0.0.1"
+  port: 8000
+  workers: 1
+  reload: true
