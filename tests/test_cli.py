@@ -1,0 +1,39 @@
+"""Unit tests for MachSense CLI entry point."""
+
+import pytest
+from machsense.main import build_parser, main
+
+
+def test_cli_parser_defaults():
+    """Verify CLI parser argument defaults."""
+    parser = build_parser()
+    args = parser.parse_args([])
+    assert args.info is False
+    assert args.config is None
+
+
+def test_cli_parser_info_flag():
+    """Verify CLI parser accepts --info flag."""
+    parser = build_parser()
+    args = parser.parse_args(["--info"])
+    assert args.info is True
+
+
+def test_cli_main_info_execution(capsys):
+    """Verify main function executes --info without failure and prints banner."""
+    exit_code = main(["--info"])
+    assert exit_code == 0
+
+    captured = capsys.readouterr()
+    assert "MachSense" in captured.out
+    assert "Project Root:" in captured.out
+    assert "Target Column:" in captured.out
+
+
+def test_cli_main_empty_args_shows_info(capsys):
+    """Verify running CLI with empty args defaults to showing info."""
+    exit_code = main([])
+    assert exit_code == 0
+
+    captured = capsys.readouterr()
+    assert "MachSense" in captured.out
