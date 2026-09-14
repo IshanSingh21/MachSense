@@ -1,0 +1,97 @@
+"""Main entry point and CLI for MachSense."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from machsense import __version__
+from machsense.config.settings import get_project_root, get_settings, load_config
+from machsense.utils.logger import get_logger, setup_logging
+
+
+def print_banner() -> None:
+    """Display project header banner."""
+    banner = r"""
+===================================================================
+   __  __            _     ____
+  |  \/  | __ _  ___| |__ / ___|  ___ _ __  ___  ___
+  | |\/| |/ _` |/ __| '_ \\___ \ / _ \ '_ \/ __|/ _ \
+  | |  | | (_| | (__| | | |___) |  __/ | | \__ \  __/
+  |_|  |_|\__,_|\___|_| |_|____/ \___|_| |_|___/\___|
+  AI-Powered Predictive Maintenance System (v""" + f"""{__version__})
+===================================================================
+"""
+    print(banner)
+
+
+def show_info(config_path: str | None = None) -> int:
+    """Print project metadata, resolved paths, and configuration summary."""
+    setup_logging()
+    logger = get_logger("machsense.cli")
+
+    print_banner()
+    logger.info("Initializing MachSense environment check...")
+
+    root = get_project_root()
+    settings = load_config(config_path) if config_path else get_settings()
+
+    print(f"Project Name:        {settings.project.name}")
+    print(f"Version:             {settings.project.version}")
+    print(f"Environment:         {settings.project.environment}")
+    print(f"Project Root:        {root}")
+    print(f"Raw Data Path:       {settings.resolve_path('raw_data_dir')}")
+    print(f"Processed Data Path: {settings.resolve_path('processed_data_dir')}")
+    print(f"Models Path:         {settings.resolve_path('models_dir')}")
+    print(f"Logs Path:           {settings.resolve_path('logs_dir')}")
+    print(f"Configs Path:        {settings.resolve_path('configs_dir')}")
+    print("-------------------------------------------------------------------")
+    print(f"Target Column:       {settings.data.target_column}")
+    print(f"Features ({len(settings.features.numerical_features)} numerical): {', '.join(settings.features.numerical_features)}")
+    print(f"Baseline Model:      {settings.model.name} ({settings.model.type})")
+    print(f"Explainability:      {settings.model.explainability.method.upper()} (Enabled: {settings.model.explainability.enabled})")
+    print("===================================================================")
+
+    logger.info("MachSense foundation check completed successfully.")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Construct command-line argument parser."""
+    parser = argparse.ArgumentParser(
+        prog="machsense",
+        description="MachSense: AI-Powered Predictive Maintenance System",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"MachSense {__version__}",
+    )
+    parser.add_argument(
+        "--info",
+        action="store_true",
+        help="Display resolved project configuration and environment status.",
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to custom YAML configuration file.",
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Application CLI entry point."""
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    if args.info or len(sys.argv) == 1 or (argv is not None and len(argv) == 0):
+        return show_info(config_path=args.config)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
