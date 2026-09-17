@@ -23,6 +23,8 @@ def run_data_pipeline(
     val_size: float = 0.15,
     test_size: float = 0.15,
     random_state: int = 42,
+    interim_dir: Optional[Path | str] = None,
+    processed_dir: Optional[Path | str] = None,
 ) -> DataSplit:
     """Execute complete end-to-end data pipeline.
 
@@ -41,6 +43,8 @@ def run_data_pipeline(
         val_size: Fraction of samples for validation.
         test_size: Fraction of samples for test.
         random_state: Random seed for deterministic reproducibility.
+        interim_dir: Optional destination for interim data.
+        processed_dir: Optional destination for processed splits.
 
     Returns:
         DataSplit object containing X_train, X_val, X_test, y_train, y_val, y_test.
@@ -63,9 +67,9 @@ def run_data_pipeline(
 
     # 4. Save Interim Data
     if save_artifacts:
-        interim_dir = settings.resolve_path("interim_data_dir")
-        interim_dir.mkdir(parents=True, exist_ok=True)
-        interim_csv_path = interim_dir / "clean_machsense.csv"
+        target_interim = Path(interim_dir) if interim_dir else settings.resolve_path("interim_data_dir")
+        target_interim.mkdir(parents=True, exist_ok=True)
+        interim_csv_path = target_interim / "clean_machsense.csv"
         clean_df.to_csv(interim_csv_path, index=False)
         logger.info("Saved interim cleaned dataset to: %s", interim_csv_path)
 
@@ -81,22 +85,22 @@ def run_data_pipeline(
 
     # 6. Save Processed Splits
     if save_artifacts:
-        processed_dir = settings.resolve_path("processed_data_dir")
-        processed_dir.mkdir(parents=True, exist_ok=True)
+        target_processed = Path(processed_dir) if processed_dir else settings.resolve_path("processed_data_dir")
+        target_processed.mkdir(parents=True, exist_ok=True)
 
-        split.X_train.to_csv(processed_dir / "X_train.csv", index=False)
-        split.X_val.to_csv(processed_dir / "X_val.csv", index=False)
-        split.X_test.to_csv(processed_dir / "X_test.csv", index=False)
-        split.y_train.to_csv(processed_dir / "y_train.csv", index=False)
-        split.y_val.to_csv(processed_dir / "y_val.csv", index=False)
-        split.y_test.to_csv(processed_dir / "y_test.csv", index=False)
+        split.X_train.to_csv(target_processed / "X_train.csv", index=False)
+        split.X_val.to_csv(target_processed / "X_val.csv", index=False)
+        split.X_test.to_csv(target_processed / "X_test.csv", index=False)
+        split.y_train.to_csv(target_processed / "y_train.csv", index=False)
+        split.y_val.to_csv(target_processed / "y_val.csv", index=False)
+        split.y_test.to_csv(target_processed / "y_test.csv", index=False)
 
         if split.failure_modes_train is not None:
-            split.failure_modes_train.to_csv(processed_dir / "failure_modes_train.csv", index=False)
-            split.failure_modes_val.to_csv(processed_dir / "failure_modes_val.csv", index=False)
-            split.failure_modes_test.to_csv(processed_dir / "failure_modes_test.csv", index=False)
+            split.failure_modes_train.to_csv(target_processed / "failure_modes_train.csv", index=False)
+            split.failure_modes_val.to_csv(target_processed / "failure_modes_val.csv", index=False)
+            split.failure_modes_test.to_csv(target_processed / "failure_modes_test.csv", index=False)
 
-        logger.info("Saved processed train/val/test splits to: %s", processed_dir)
+        logger.info("Saved processed train/val/test splits to: %s", target_processed)
 
     logger.info("MachSense Data Pipeline completed successfully.")
     return split

@@ -169,12 +169,17 @@ def test_run_data_pipeline_end_to_end(tmp_path: Path):
     df = generate_synthetic_ai4i_benchmark(n_samples=300, seed=789)
     df.to_csv(raw_file, index=False)
 
+    test_interim = tmp_path / "interim"
+    test_processed = tmp_path / "processed"
+
     split = run_data_pipeline(
         raw_file_path=raw_file,
         save_artifacts=True,
         val_size=0.2,
         test_size=0.1,
         random_state=42,
+        interim_dir=test_interim,
+        processed_dir=test_processed,
     )
 
     assert isinstance(split, DataSplit)
@@ -182,3 +187,5 @@ def test_run_data_pipeline_end_to_end(tmp_path: Path):
     assert len(split.X_val) > 0
     assert len(split.X_test) > 0
     assert split.verify_no_leakage() is True
+    assert (test_processed / "X_train.csv").exists()
+    assert (test_interim / "clean_machsense.csv").exists()
