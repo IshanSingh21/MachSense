@@ -1,0 +1,34 @@
+{
+  "scaling_method": "standard",
+  "include_wear_rate": true,
+  "feature_names_out": [
+    "type_L",
+    "type_M",
+    "type_H",
+    "air_temperature_k",
+    "process_temperature_k",
+    "rotational_speed_rpm",
+    "torque_nm",
+    "tool_wear_min",
+    "power_w",
+    "temp_difference_k",
+    "temp_ratio",
+    "overstrain_index",
+    "tool_wear_rate"
+  ],
+  "numerical_cols": [
+    "air_temperature_k",
+    "process_temperature_k",
+    "rotational_speed_rpm",
+    "torque_nm",
+    "tool_wear_min",
+    "power_w",
+    "temp_difference_k",
+    "temp_ratio",
+    "overstrain_index",
+    "tool_wear_rate"
+  ],
+  "categorical_cols": [
+    "type"
+  ]
+}

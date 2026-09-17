@@ -1,3 +1,11 @@
-"""Feature engineering and preprocessing pipeline module for MachSense."""
+"""Feature engineering and preprocessing package for MachSense."""
 
-# Module placeholders for Day 2+ (signal processing, rolling aggregations, feature encoders)
+from machsense.features.domain_features import DomainFeatureExtractor
+from machsense.features.pipeline import run_feature_pipeline
+from machsense.features.preprocessor import MachSensePreprocessor
+
+__all__ = [
+    "DomainFeatureExtractor",
+    "MachSensePreprocessor",
+    "run_feature_pipeline",
+]
