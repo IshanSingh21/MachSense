@@ -1,3 +1,19 @@
-"""Predictive modeling and explainability module for MachSense."""
+"""Predictive modeling and evaluation package for MachSense."""
 
-# Module placeholders for Day 3+ (failure classifiers, SHAP explainers, model evaluation)
+from machsense.models.evaluator import (
+    ModelEvaluationResult,
+    evaluate_classifier,
+    find_optimal_threshold,
+)
+from machsense.models.trainer import (
+    get_baseline_models,
+    train_and_evaluate_models,
+)
+
+__all__ = [
+    "ModelEvaluationResult",
+    "evaluate_classifier",
+    "find_optimal_threshold",
+    "get_baseline_models",
+    "train_and_evaluate_models",
+]
