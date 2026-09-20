@@ -1,5 +1,13 @@
-"""Predictive modeling, evaluation, tuning, and registry package for MachSense."""
+"""Predictive modeling, evaluation, tuning, registry, and error analysis package for MachSense."""
 
+from machsense.models.error_analysis import (
+    ErrorAnalysisReport,
+    FailureModeSliceResult,
+    analyze_model_errors,
+    categorize_predictions,
+    compute_failure_mode_slices,
+    evaluate_threshold_grid,
+)
 from machsense.models.evaluator import (
     ModelEvaluationResult,
     evaluate_classifier,
@@ -30,4 +38,10 @@ __all__ = [
     "get_tuning_search_spaces",
     "tune_model",
     "run_model_optimization",
+    "ErrorAnalysisReport",
+    "FailureModeSliceResult",
+    "analyze_model_errors",
+    "categorize_predictions",
+    "compute_failure_mode_slices",
+    "evaluate_threshold_grid",
 ]
