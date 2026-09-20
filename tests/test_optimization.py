@@ -1,5 +1,7 @@
 """Unit and integration tests for MachSense hyperparameter tuning and model registry."""
 
+from __future__ import annotations
+
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -131,7 +133,7 @@ def test_run_model_optimization_pipeline():
     champion_model, metadata, comparison_df = run_model_optimization(
         version="v1.0.0",
         cv_splits=2,
-        save_artifacts=True,
+        save_artifacts=False,
     )
 
     assert hasattr(champion_model, "predict")

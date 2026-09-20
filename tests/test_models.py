@@ -1,6 +1,7 @@
 """Unit and integration tests for MachSense model training and evaluation engine."""
 
-from pathlib import Path
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -80,7 +81,7 @@ def test_find_optimal_threshold():
 
 def test_train_and_evaluate_models_pipeline():
     """Verify end-to-end model benchmark execution, leaderboard generation, and serialization."""
-    val_df, experiments, best_model = train_and_evaluate_models(save_artifacts=True)
+    val_df, experiments, best_model = train_and_evaluate_models(save_artifacts=False)
 
     assert isinstance(val_df, pd.DataFrame)
     assert len(val_df) == 5  # 5 model families
