@@ -13,6 +13,13 @@ from machsense.models.evaluator import (
     evaluate_classifier,
     find_optimal_threshold,
 )
+from machsense.models.explainability import (
+    FEATURE_DISPLAY_NAMES,
+    NON_CAUSAL_DISCLAIMER,
+    FeatureAttribution,
+    LocalExplanationResult,
+    MachSenseExplainer,
+)
 from machsense.models.registry import (
     ModelMetadata,
     ModelRegistry,
@@ -44,4 +51,9 @@ __all__ = [
     "categorize_predictions",
     "compute_failure_mode_slices",
     "evaluate_threshold_grid",
+    "MachSenseExplainer",
+    "FeatureAttribution",
+    "LocalExplanationResult",
+    "FEATURE_DISPLAY_NAMES",
+    "NON_CAUSAL_DISCLAIMER",
 ]
