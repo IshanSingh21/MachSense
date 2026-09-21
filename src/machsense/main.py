@@ -79,13 +79,31 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Path to custom YAML configuration file.",
     )
+    parser.add_argument(
+        "--explain",
+        action="store_true",
+        help="Run SHAP explainability analysis on champion model and test telemetry.",
+    )
     return parser
+
+
+def run_explainability_cli(config_path: str | None = None) -> int:
+    """Run SHAP explainability CLI demonstration."""
+    setup_logging()
+    logger = get_logger("machsense.cli")
+    logger.info("Executing MachSense SHAP Explainability CLI...")
+    from machsense.models.explainability import main as explain_main
+    explain_main()
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     """Application CLI entry point."""
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.explain:
+        return run_explainability_cli(config_path=args.config)
 
     if args.info or len(sys.argv) == 1 or (argv is not None and len(argv) == 0):
         return show_info(config_path=args.config)

@@ -37,3 +37,20 @@ def test_cli_main_empty_args_shows_info(capsys):
 
     captured = capsys.readouterr()
     assert "MachSense" in captured.out
+
+
+def test_cli_parser_explain_flag():
+    """Verify CLI parser accepts --explain flag."""
+    parser = build_parser()
+    args = parser.parse_args(["--explain"])
+    assert args.explain is True
+
+
+def test_cli_main_explain_execution(capsys):
+    """Verify running CLI with --explain executes successfully."""
+    exit_code = main(["--explain"])
+    assert exit_code == 0
+
+    captured = capsys.readouterr()
+    assert "MachSense Explainable AI (SHAP) Demonstration" in captured.out
+    assert "Computing Global Feature Importance" in captured.out
