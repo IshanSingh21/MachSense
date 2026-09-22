@@ -54,3 +54,21 @@ def test_cli_main_explain_execution(capsys):
     captured = capsys.readouterr()
     assert "MachSense Explainable AI (SHAP) Demonstration" in captured.out
     assert "Computing Global Feature Importance" in captured.out
+
+
+def test_cli_parser_predict_sample_flag():
+    """Verify CLI parser accepts --predict-sample flag."""
+    parser = build_parser()
+    args = parser.parse_args(["--predict-sample"])
+    assert args.predict_sample is True
+
+
+def test_cli_main_predict_sample_execution(capsys):
+    """Verify running CLI with --predict-sample executes successfully."""
+    exit_code = main(["--predict-sample"])
+    assert exit_code == 0
+
+    captured = capsys.readouterr()
+    assert "MachSense Production Prediction Result" in captured.out
+    assert "Failure Probability:" in captured.out
+    assert "Operator Diagnostic Summary" in captured.out

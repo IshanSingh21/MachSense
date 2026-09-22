@@ -84,6 +84,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run SHAP explainability analysis on champion model and test telemetry.",
     )
+    parser.add_argument(
+        "--predict-sample",
+        action="store_true",
+        help="Run end-to-end production inference pipeline on a sample sensor payload.",
+    )
     return parser
 
 
@@ -97,10 +102,50 @@ def run_explainability_cli(config_path: str | None = None) -> int:
     return 0
 
 
+def run_predict_sample_cli(config_path: str | None = None) -> int:
+    """Run live sample inference through MachSensePredictionService."""
+    setup_logging()
+    logger = get_logger("machsense.cli")
+    logger.info("Executing MachSense Prediction Pipeline demonstration...")
+
+    from machsense.inference.pipeline import MachSensePredictionService
+
+    service = MachSensePredictionService()
+    sample_payload = {
+        "type": "L",
+        "air_temperature_k": 302.5,
+        "process_temperature_k": 311.8,
+        "rotational_speed_rpm": 1380.0,
+        "torque_nm": 58.5,
+        "tool_wear_min": 210.0,
+    }
+
+    print("\n--- Incoming Sensor Payload ---")
+    for k, v in sample_payload.items():
+        print(f"  {k}: {v}")
+
+    result = service.predict(sample_payload, explain=True)
+
+    print("\n--- MachSense Production Prediction Result ---")
+    print(f"Status:              {result.status.value}")
+    print(f"Failure Probability: {result.failure_probability:.4%}")
+    print(f"Predicted Class:     {result.predicted_class} ({result.predicted_label})")
+    print(f"Risk Level:          {result.risk_level.value}")
+    print(f"Threshold Applied:   {result.threshold_used:.4f}")
+    print(f"Model Version:       {result.model_version}")
+    print(f"Latency:             {result.latency_ms:.2f} ms")
+    print("\n--- Operator Diagnostic Summary ---")
+    print(result.operator_summary)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Application CLI entry point."""
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.predict_sample:
+        return run_predict_sample_cli(config_path=args.config)
 
     if args.explain:
         return run_explainability_cli(config_path=args.config)
