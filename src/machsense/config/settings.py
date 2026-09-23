@@ -102,6 +102,8 @@ class ServingConfig(BaseModel):
     port: int = 8000
     workers: int = 1
     reload: bool = True
+    cors_origins: List[str] = Field(default_factory=lambda: ["*"])
+    api_prefix: str = "/api/v1"
 
 
 class AppConfig(BaseModel):
