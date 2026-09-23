@@ -72,3 +72,12 @@ def test_cli_main_predict_sample_execution(capsys):
     assert "MachSense Production Prediction Result" in captured.out
     assert "Failure Probability:" in captured.out
     assert "Operator Diagnostic Summary" in captured.out
+
+
+def test_cli_parser_serve_flag():
+    """Verify CLI parser accepts --serve, --host, and --port flags."""
+    parser = build_parser()
+    args = parser.parse_args(["--serve", "--host", "0.0.0.0", "--port", "9000"])
+    assert args.serve is True
+    assert args.host == "0.0.0.0"
+    assert args.port == 9000

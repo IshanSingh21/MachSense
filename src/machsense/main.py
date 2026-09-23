@@ -89,6 +89,23 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run end-to-end production inference pipeline on a sample sensor payload.",
     )
+    parser.add_argument(
+        "--serve",
+        action="store_true",
+        help="Start the MachSense FastAPI backend server with Uvicorn.",
+    )
+    parser.add_argument(
+        "--host",
+        type=str,
+        default=None,
+        help="Override server bind host (default: 127.0.0.1).",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="Override server port (default: 8000).",
+    )
     return parser
 
 
@@ -99,6 +116,37 @@ def run_explainability_cli(config_path: str | None = None) -> int:
     logger.info("Executing MachSense SHAP Explainability CLI...")
     from machsense.models.explainability import main as explain_main
     explain_main()
+    return 0
+
+
+def run_server_cli(
+    config_path: str | None = None,
+    host: str | None = None,
+    port: int | None = None,
+) -> int:
+    """Launch the FastAPI server using Uvicorn."""
+    import uvicorn
+
+    setup_logging()
+    logger = get_logger("machsense.cli")
+    settings = load_config(config_path) if config_path else get_settings()
+
+    bind_host = host or settings.serving.host
+    bind_port = port or settings.serving.port
+
+    print_banner()
+    logger.info("Starting MachSense FastAPI backend on http://%s:%d ...", bind_host, bind_port)
+    print(f"API Documentation available at: http://{bind_host}:{bind_port}/docs")
+    print(f"ReDoc Documentation at:         http://{bind_host}:{bind_port}/redoc")
+    print(f"Health Check at:                http://{bind_host}:{bind_port}/health")
+
+    uvicorn.run(
+        "machsense.api.app:app",
+        host=bind_host,
+        port=bind_port,
+        reload=settings.serving.reload,
+        workers=settings.serving.workers if not settings.serving.reload else 1,
+    )
     return 0
 
 
@@ -143,6 +191,9 @@ def main(argv: list[str] | None = None) -> int:
     """Application CLI entry point."""
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.serve:
+        return run_server_cli(config_path=args.config, host=args.host, port=args.port)
 
     if args.predict_sample:
         return run_predict_sample_cli(config_path=args.config)
