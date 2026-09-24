@@ -81,3 +81,10 @@ def test_cli_parser_serve_flag():
     assert args.serve is True
     assert args.host == "0.0.0.0"
     assert args.port == 9000
+
+
+def test_cli_parser_ui_flag():
+    """Verify CLI parser accepts --ui flag."""
+    parser = build_parser()
+    args = parser.parse_args(["--ui"])
+    assert args.ui is True

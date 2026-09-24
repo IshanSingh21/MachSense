@@ -106,7 +106,29 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override server port (default: 8000).",
     )
+    parser.add_argument(
+        "--ui",
+        action="store_true",
+        help="Launch the MachSense interactive Streamlit user dashboard.",
+    )
     return parser
+
+
+def run_ui_cli() -> int:
+    """Launch the Streamlit user dashboard."""
+    import subprocess
+    from machsense.config.settings import get_project_root
+
+    root = get_project_root()
+    app_path = root / "src" / "machsense" / "ui" / "app.py"
+
+    print_banner()
+    logger = get_logger("machsense.cli")
+    logger.info("Launching MachSense Streamlit User Dashboard...")
+    print(f"Starting Streamlit from: {app_path}")
+
+    cmd = [sys.executable, "-m", "streamlit", "run", str(app_path)]
+    return subprocess.call(cmd)
 
 
 def run_explainability_cli(config_path: str | None = None) -> int:
@@ -191,6 +213,9 @@ def main(argv: list[str] | None = None) -> int:
     """Application CLI entry point."""
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.ui:
+        return run_ui_cli()
 
     if args.serve:
         return run_server_cli(config_path=args.config, host=args.host, port=args.port)
