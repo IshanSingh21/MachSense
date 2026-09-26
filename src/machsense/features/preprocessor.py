@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+
 import joblib
 import numpy as np
 import pandas as pd
@@ -14,7 +15,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, RobustScaler, StandardScaler
 
-from machsense.config.settings import get_project_root, get_settings
+from machsense.config.settings import get_settings
 from machsense.features.domain_features import DomainFeatureExtractor
 from machsense.utils.logger import get_logger
 
@@ -102,7 +103,6 @@ class MachSensePreprocessor(BaseEstimator, TransformerMixin):
         self.column_transformer_.fit(X_domain)
 
         # 4. Extract output feature names
-        cat_encoder: OneHotEncoder = self.column_transformer_.named_transformers_["cat"].named_steps["onehot"]
         encoded_cat_names = [f"type_{cat}" for cat in ["L", "M", "H"]]
         self.feature_names_out_ = encoded_cat_names + self.numerical_cols_
 

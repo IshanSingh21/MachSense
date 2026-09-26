@@ -11,10 +11,11 @@ import urllib.request
 import zipfile
 from pathlib import Path
 from typing import Optional
+
 import numpy as np
 import pandas as pd
 
-from machsense.config.settings import get_project_root, get_settings
+from machsense.config.settings import get_settings
 from machsense.utils.logger import get_logger
 
 logger = get_logger("machsense.data.download")

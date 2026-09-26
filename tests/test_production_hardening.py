@@ -1,8 +1,7 @@
 """Production hardening and security verification test suite for MachSense (Day 13)."""
 
-import os
-from pathlib import Path
 import time
+
 import numpy as np
 import pandas as pd
 import pytest

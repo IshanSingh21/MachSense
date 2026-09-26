@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 from machsense import __version__
 from machsense.config.settings import get_project_root, get_settings, load_config
@@ -117,6 +116,7 @@ def build_parser() -> argparse.ArgumentParser:
 def run_ui_cli() -> int:
     """Launch the Streamlit user dashboard."""
     import subprocess
+
     from machsense.config.settings import get_project_root
 
     root = get_project_root()

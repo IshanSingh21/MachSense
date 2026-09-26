@@ -4,13 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
-import pandas as pd
 
 from machsense.config.settings import get_settings
 from machsense.data.cleaner import clean_dataset, validate_dataset
-from machsense.data.download import download_ai4i_dataset
 from machsense.data.loader import load_raw_data
-from machsense.data.schema import ValidationReport
 from machsense.data.splitter import DataSplit, split_data
 from machsense.utils.logger import get_logger, setup_logging
 

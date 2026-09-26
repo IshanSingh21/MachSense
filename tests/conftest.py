@@ -1,8 +1,8 @@
 """Pytest fixtures for MachSense test suite."""
 
-import os
 import sys
 from pathlib import Path
+
 import pytest
 
 # Ensure src is in python path for test runs

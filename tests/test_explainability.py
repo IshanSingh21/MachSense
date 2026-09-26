@@ -1,7 +1,8 @@
 """Unit tests for MachSense Explainable AI (SHAP) module."""
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -9,9 +10,7 @@ import pytest
 from sklearn.ensemble import RandomForestClassifier
 
 from machsense.models.explainability import (
-    FEATURE_DISPLAY_NAMES,
     NON_CAUSAL_DISCLAIMER,
-    FeatureAttribution,
     LocalExplanationResult,
     MachSenseExplainer,
 )

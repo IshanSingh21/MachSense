@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Optional, Tuple
+
 import pandas as pd
 
 from machsense.config.settings import get_settings

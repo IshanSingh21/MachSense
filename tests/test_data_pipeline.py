@@ -1,18 +1,17 @@
 """Unit and integration tests for MachSense data ingestion, validation, and splitting pipeline."""
 
-import shutil
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 from pydantic import ValidationError
 
 from machsense.data.cleaner import clean_dataset, validate_dataset
-from machsense.data.download import download_ai4i_dataset, generate_synthetic_ai4i_benchmark
-from machsense.data.loader import load_raw_data, standardize_columns
+from machsense.data.download import generate_synthetic_ai4i_benchmark
+from machsense.data.loader import standardize_columns
 from machsense.data.pipeline import run_data_pipeline
 from machsense.data.schema import (
-    COLUMN_MAPPING,
     EXPECTED_FEATURE_COLUMNS,
     MachineType,
     SensorRecord,

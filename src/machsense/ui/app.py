@@ -147,7 +147,7 @@ def main() -> None:
                 """
                 #### 1. Heat Dissipation Failure (HDF)
                 - **Physical Cause**: Cooling system breakdown or lubricant starvation.
-                - **Signature**: Air-Process temperature difference $\Delta T < 8.6\\text{ K}$ combined with spindle speeds below $1380\\text{ rpm}$.
+                - **Signature**: Air-Process temperature difference $\\Delta T < 8.6\\text{ K}$ combined with spindle speeds below $1380\\text{ rpm}$.
                 - **Detection Rate**: **100%**.
 
                 #### 2. Power Failure (PWF)
@@ -167,7 +167,7 @@ def main() -> None:
                 #### 4. Tool Wear Failure (TWF)
                 - **Physical Cause**: Cutting insert flank wear exceeding permissible clearance.
                 - **Signature**: Cumulative tool wear time $t_{\\text{wear}} > 200–240\\text{ min}$.
-                - **Detection Rate**: **85.7%** (Calibrating threshold to $0.35$ raises detection to $>94\%$).
+                - **Detection Rate**: **85.7%** (Calibrating threshold to $0.35$ raises detection to $>94\\%$).
 
                 #### 5. Random Failures (RNF)
                 - **Physical Cause**: True stochastic hardware fault (e.g. electrical surge).

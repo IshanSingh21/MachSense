@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
-import numpy as np
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field, field_validator
 
 from machsense.data.schema import MachineType, SensorBoundaries
-from machsense.models.explainability import NON_CAUSAL_DISCLAIMER, FeatureAttribution
+from machsense.models.explainability import NON_CAUSAL_DISCLAIMER
 
 
 class InferenceStatus(str, Enum):

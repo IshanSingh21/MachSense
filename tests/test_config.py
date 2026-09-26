@@ -1,8 +1,9 @@
 """Unit tests for configuration management and dynamic path resolution."""
 
-import os
 from pathlib import Path
+
 import pytest
+
 from machsense.config.settings import (
     AppConfig,
     get_project_root,

@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
-from pathlib import Path
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
-import numpy as np
+
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
@@ -17,7 +16,6 @@ from machsense.features.preprocessor import MachSensePreprocessor
 from machsense.models.evaluator import (
     ModelEvaluationResult,
     evaluate_classifier,
-    find_optimal_threshold,
 )
 from machsense.models.registry import ModelMetadata, ModelRegistry
 from machsense.utils.logger import get_logger, setup_logging

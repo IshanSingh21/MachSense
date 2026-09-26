@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
+
 import joblib
 import pandas as pd
 from sklearn.dummy import DummyClassifier

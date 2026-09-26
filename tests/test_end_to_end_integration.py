@@ -4,18 +4,14 @@ Verifies full connectivity across:
 Streamlit UI Client <-> FastAPI Backend <-> Prediction Pipeline <-> Preprocessing <-> ML Model <-> TreeSHAP Explainability.
 """
 
-import os
-from pathlib import Path
 import tempfile
-from unittest.mock import patch
-import pandas as pd
+
 import pytest
 from fastapi.testclient import TestClient
 
 from machsense.api.app import app
 from machsense.inference.pipeline import MachSensePredictionService
 from machsense.inference.schema import InferenceStatus, RiskLevel
-from machsense.models.registry import ModelRegistry
 from machsense.ui.client import TELEMETRY_PRESETS, MachSenseUIClient
 
 

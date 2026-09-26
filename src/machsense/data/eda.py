@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List
+
 import numpy as np
 import pandas as pd
 
-from machsense.config.settings import get_settings
 from machsense.data.loader import load_raw_data
 from machsense.data.schema import EXPECTED_FEATURE_COLUMNS, FAILURE_MODE_COLUMNS
 from machsense.utils.logger import get_logger, setup_logging
@@ -38,7 +38,7 @@ class DatasetSummary:
             f"Imbalance Ratio (0:1):  {self.imbalance_ratio:.1f} : 1\n"
             f"\nFailure Modes Breakdown:\n"
             + "\n".join([f"  - {k.upper():<5}: {v:>4} occurrences" for k, v in self.failure_mode_counts.items()])
-            + f"\n\nOutliers (1.5*IQR bounds):\n"
+            + "\n\nOutliers (1.5*IQR bounds):\n"
             + "\n".join([f"  - {k:<25}: {v:>4} outliers" for k, v in self.outlier_counts.items()])
         )
 

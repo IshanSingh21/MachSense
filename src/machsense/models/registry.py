@@ -4,13 +4,11 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
+
 import joblib
-import numpy as np
-import pandas as pd
 
 from machsense.config.settings import get_settings
 from machsense.features.preprocessor import MachSensePreprocessor

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional, Tuple
+
 import streamlit as st
 
 from machsense.data.schema import SensorBoundaries

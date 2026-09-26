@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import confusion_matrix
 
 from machsense.config.settings import get_settings
 from machsense.data.schema import FAILURE_MODE_COLUMNS
-from machsense.models.evaluator import evaluate_classifier
 from machsense.models.registry import ModelRegistry
 from machsense.utils.logger import get_logger, setup_logging
 
@@ -155,7 +155,7 @@ def evaluate_threshold_grid(
     for t in thresholds:
         preds = (y_prob >= t).astype(int)
         cm = confusion_matrix(y_arr, preds, labels=[0, 1])
-        tn, fp, fn, tp = int(cm[0, 0]), int(cm[0, 1]), int(cm[1, 0]), int(cm[1, 1])
+        _tn, fp, fn, tp = int(cm[0, 0]), int(cm[0, 1]), int(cm[1, 0]), int(cm[1, 1])
 
         prec = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
         rec = float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0

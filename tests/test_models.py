@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
 
 from machsense.models.evaluator import (

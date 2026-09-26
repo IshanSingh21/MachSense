@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from machsense import __version__
 from machsense.config.settings import get_settings
 from machsense.utils.logger import get_logger, setup_logging

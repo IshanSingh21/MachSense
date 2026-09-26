@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import logging
 import logging.config
-import os
 from pathlib import Path
 from typing import Optional
+
 import yaml
 
 from machsense.config.settings import get_project_root

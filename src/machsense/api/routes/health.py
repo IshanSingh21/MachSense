@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Request, status
 from fastapi.responses import JSONResponse
 
 from machsense import __version__
-from machsense.api.dependencies import get_prediction_service
 from machsense.api.schemas import HealthResponse, ReadinessResponse, RootResponse
 from machsense.config.settings import get_settings
 from machsense.inference.pipeline import MachSensePredictionService

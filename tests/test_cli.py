@@ -1,6 +1,5 @@
 """Unit tests for MachSense CLI entry point."""
 
-import pytest
 from machsense.main import build_parser, main
 
 

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
+
 import pandas as pd
 
 from machsense.inference.pipeline import MachSensePredictionService
@@ -11,7 +12,6 @@ from machsense.inference.schema import (
     InferenceStatus,
     PredictionResult,
     RiskLevel,
-    SensorPayload,
 )
 from machsense.utils.logger import get_logger
 

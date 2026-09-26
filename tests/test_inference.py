@@ -1,6 +1,5 @@
 """Unit and integration tests for MachSense production inference pipeline."""
 
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
@@ -10,12 +9,10 @@ from machsense.inference.pipeline import MachSensePredictionService
 from machsense.inference.schema import (
     BatchPredictionResult,
     InferenceStatus,
-    PredictionResult,
     RiskLevel,
     SensorPayload,
 )
 from machsense.inference.validator import InferenceValidator
-from machsense.models.registry import ModelRegistry
 
 
 @pytest.fixture

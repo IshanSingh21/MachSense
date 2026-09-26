@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any
-from fastapi import APIRouter, Depends, HTTPException, status
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from machsense.api.dependencies import get_prediction_service
 from machsense.api.schemas import (

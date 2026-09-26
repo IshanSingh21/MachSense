@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Tuple, Union
+
 import numpy as np
 import pandas as pd
 from pydantic import ValidationError
 
-from machsense.data.schema import EXPECTED_FEATURE_COLUMNS, MachineType, SensorBoundaries
+from machsense.data.schema import MachineType, SensorBoundaries
 from machsense.inference.schema import SensorPayload, ValidationResult
 from machsense.utils.logger import get_logger
 
@@ -127,12 +128,12 @@ class InferenceValidator:
             errors.append(f"Found {len(invalid_types)} rows with invalid machine 'type' (must be 'L', 'M', or 'H').")
 
         # Check physical boundary ranges
-        oob_speed = df[(df["rotational_speed_rpm"] < SensorBoundaries.ROTATIONAL_SPEED_MIN_RPM) | 
+        oob_speed = df[(df["rotational_speed_rpm"] < SensorBoundaries.ROTATIONAL_SPEED_MIN_RPM) |
                        (df["rotational_speed_rpm"] > SensorBoundaries.ROTATIONAL_SPEED_MAX_RPM)]
         if not oob_speed.empty:
             errors.append(f"Found {len(oob_speed)} rows with out-of-bounds 'rotational_speed_rpm' [{SensorBoundaries.ROTATIONAL_SPEED_MIN_RPM}-{SensorBoundaries.ROTATIONAL_SPEED_MAX_RPM}].")
 
-        oob_torque = df[(df["torque_nm"] < SensorBoundaries.TORQUE_MIN_NM) | 
+        oob_torque = df[(df["torque_nm"] < SensorBoundaries.TORQUE_MIN_NM) |
                         (df["torque_nm"] > SensorBoundaries.TORQUE_MAX_NM)]
         if not oob_torque.empty:
             errors.append(f"Found {len(oob_torque)} rows with out-of-bounds 'torque_nm' [{SensorBoundaries.TORQUE_MIN_NM}-{SensorBoundaries.TORQUE_MAX_NM}].")

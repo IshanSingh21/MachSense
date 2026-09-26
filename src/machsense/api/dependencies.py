@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Optional
+
 from fastapi import HTTPException, Request, status
 
 from machsense.inference.pipeline import MachSensePredictionService

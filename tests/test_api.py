@@ -3,7 +3,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from machsense.api.app import app, create_app
+from machsense.api.app import app
 
 
 @pytest.fixture(scope="module")
