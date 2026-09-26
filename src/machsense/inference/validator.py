@@ -84,6 +84,8 @@ class InferenceValidator:
             errors.append(f"Unexpected validation error: {str(exc)}")
             return ValidationResult(is_valid=False, errors=errors, warnings=warnings)
 
+    MAX_BATCH_SIZE: int = 5000
+
     @classmethod
     def validate_dataframe(cls, df: pd.DataFrame) -> Tuple[bool, list[str], pd.DataFrame]:
         """Validate a batch DataFrame before feeding into batch inference.
@@ -99,6 +101,13 @@ class InferenceValidator:
 
         if df.empty:
             return False, ["Input DataFrame is empty."], df
+
+        if len(df) > cls.MAX_BATCH_SIZE:
+            return (
+                False,
+                [f"Batch DataFrame exceeds maximum permissible limit of {cls.MAX_BATCH_SIZE:,} records (got {len(df):,})."],
+                df,
+            )
 
         errors: list[str] = []
         missing_cols = REQUIRED_SENSOR_FIELDS - set(df.columns)

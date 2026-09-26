@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +17,22 @@ from machsense.features.preprocessor import MachSensePreprocessor
 from machsense.utils.logger import get_logger
 
 logger = get_logger("machsense.models.registry")
+
+VERSION_REGEX = re.compile(r"^[vV]?\d+\.\d+\.\d+$")
+
+
+def validate_version_tag(version: str) -> str:
+    """Validate and normalize semantic version tag (e.g. 'v1.0.0' or '1.0.0').
+
+    Raises:
+        ValueError: If version contains path traversal characters or invalid semver structure.
+    """
+    if not VERSION_REGEX.match(version):
+        raise ValueError(
+            f"Invalid semantic version tag '{version}'. Version must follow 'vX.Y.Z' or 'X.Y.Z' pattern."
+        )
+    clean = version.lstrip("v").lstrip("V")
+    return f"v{clean}"
 
 
 @dataclass
@@ -66,8 +83,7 @@ class ModelRegistry:
         Returns:
             Dictionary of saved artifact paths.
         """
-        clean_version = version.lstrip("v")
-        tag = f"v{clean_version}"
+        tag = validate_version_tag(version)
 
         # 1. Versioned file paths
         model_path = self.models_dir / f"machsense_model_{tag}.joblib"
@@ -123,8 +139,7 @@ class ModelRegistry:
             prep_path = self.models_dir / "preprocessor.joblib"
             meta_path = self.models_dir / "model_card.json"
         else:
-            clean_version = version.lstrip("v")
-            tag = f"v{clean_version}"
+            tag = validate_version_tag(version)
             model_path = self.models_dir / f"machsense_model_{tag}.joblib"
             prep_path = self.models_dir / f"machsense_preprocessor_{tag}.joblib"
             meta_path = self.models_dir / f"model_metadata_{tag}.json"

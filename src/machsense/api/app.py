@@ -69,10 +69,11 @@ def create_app(config: Optional[AppConfig] = None) -> FastAPI:
 
     # 1. Configure CORS Middleware
     origins = settings.serving.cors_origins
+    allow_wildcard = "*" in origins or (len(origins) == 1 and origins[0] == "*")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins if origins else ["*"],
-        allow_credentials=True,
+        allow_credentials=not allow_wildcard,  # Secure: credentials disallowed on wildcard origin
         allow_methods=["*"],
         allow_headers=["*"],
     )
