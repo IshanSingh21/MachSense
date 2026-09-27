@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # FastAPI Predictive Maintenance Backend
+  # ==========================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: machsense-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MACHSENSE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=8000
+      - WEB_CONCURRENCY=2
+      - MACHSENSE_CORS_ORIGINS=["http://localhost:8501","http://127.0.0.1:8501","http://ui:8501"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - logs_volume:/app/logs
+    networks:
+      - machsense-network
+
+  # ==========================================
+  # Streamlit Operator Diagnostics Dashboard
+  # ==========================================
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    container_name: machsense-ui
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - MACHSENSE_ENV=production
+      - MACHSENSE_API_URL=http://api:8000
+      - MACHSENSE_PREFER_API=true
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - logs_volume:/app/logs
+    networks:
+      - machsense-network
+
+volumes:
+  logs_volume:
+    driver: local
+
+networks:
+  machsense-network:
+    driver: bridge
