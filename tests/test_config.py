@@ -66,3 +66,22 @@ def test_resolve_path_invalid_attribute():
     config = get_settings()
     with pytest.raises(AttributeError):
         config.resolve_path("non_existent_path_key")
+
+
+def test_cloud_environment_overrides(temp_config_file: Path, monkeypatch: pytest.MonkeyPatch):
+    """Verify cloud deployment env vars override serving and path parameters."""
+    monkeypatch.setenv("PORT", "9090")
+    monkeypatch.setenv("HOST", "0.0.0.0")
+    monkeypatch.setenv("WEB_CONCURRENCY", "4")
+    monkeypatch.setenv("MACHSENSE_RELOAD", "false")
+    monkeypatch.setenv("MACHSENSE_CORS_ORIGINS", "https://app.machsense.com, http://localhost:3000")
+    monkeypatch.setenv("MACHSENSE_MODELS_DIR", "custom/models")
+
+    config = load_config(temp_config_file)
+    assert config.serving.port == 9090
+    assert config.serving.host == "0.0.0.0"
+    assert config.serving.workers == 4
+    assert config.serving.reload is False
+    assert config.serving.cors_origins == ["https://app.machsense.com", "http://localhost:3000"]
+    assert config.paths.models_dir == "custom/models"
+

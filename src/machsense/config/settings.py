@@ -144,9 +144,55 @@ def load_config(config_path: Optional[Path | str] = None) -> AppConfig:
         raw_dict: Dict[str, Any] = yaml.safe_load(f) or {}
 
     # Environment overrides
-    env_name = os.environ.get("MACHSENSE_ENV")
+    env_name = os.environ.get("MACHSENSE_ENV") or os.environ.get("ENV")
     if env_name and "project" in raw_dict:
         raw_dict["project"]["environment"] = env_name
+
+    # Serving configuration overrides (Cloud Run / Render / Railway / Heroku / Fly.io / Docker)
+    serving_dict = raw_dict.setdefault("serving", {})
+    port_env = os.environ.get("PORT") or os.environ.get("MACHSENSE_PORT")
+    if port_env:
+        try:
+            serving_dict["port"] = int(port_env)
+        except ValueError:
+            pass
+
+    host_env = os.environ.get("HOST") or os.environ.get("MACHSENSE_HOST")
+    if host_env:
+        serving_dict["host"] = host_env
+
+    workers_env = os.environ.get("WEB_CONCURRENCY") or os.environ.get("MACHSENSE_WORKERS")
+    if workers_env:
+        try:
+            serving_dict["workers"] = int(workers_env)
+        except ValueError:
+            pass
+
+    reload_env = os.environ.get("MACHSENSE_RELOAD")
+    if reload_env is not None:
+        serving_dict["reload"] = reload_env.strip().lower() in ("true", "1", "yes")
+    elif env_name == "production":
+        serving_dict["reload"] = False
+
+    cors_env = os.environ.get("MACHSENSE_CORS_ORIGINS")
+    if cors_env:
+        if cors_env.startswith("[") and cors_env.endswith("]"):
+            try:
+                import json
+                serving_dict["cors_origins"] = json.loads(cors_env)
+            except Exception:
+                serving_dict["cors_origins"] = [orig.strip() for orig in cors_env.split(",") if orig.strip()]
+        else:
+            serving_dict["cors_origins"] = [orig.strip() for orig in cors_env.split(",") if orig.strip()]
+
+    # Path overrides
+    paths_dict = raw_dict.setdefault("paths", {})
+    if os.environ.get("MACHSENSE_DATA_DIR"):
+        paths_dict["data_dir"] = os.environ["MACHSENSE_DATA_DIR"]
+    if os.environ.get("MACHSENSE_MODELS_DIR"):
+        paths_dict["models_dir"] = os.environ["MACHSENSE_MODELS_DIR"]
+    if os.environ.get("MACHSENSE_LOGS_DIR"):
+        paths_dict["logs_dir"] = os.environ["MACHSENSE_LOGS_DIR"]
 
     return AppConfig(**raw_dict)
 
