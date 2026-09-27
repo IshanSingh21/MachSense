@@ -35,6 +35,13 @@ async def get_root() -> RootResponse:
     summary="Liveness Health Check",
     description="Returns standard 200 OK if the FastAPI process is alive and accepting traffic.",
 )
+@router.get(
+    "/health/live",
+    response_model=HealthResponse,
+    summary="Liveness Health Check (K8s/Cloud Probe)",
+    description="Returns standard 200 OK if the FastAPI process is alive and accepting traffic.",
+    include_in_schema=False,
+)
 async def get_health() -> HealthResponse:
     """Liveness probe verifying that the backend server is running."""
     settings = get_settings()

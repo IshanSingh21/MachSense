@@ -79,7 +79,7 @@ class MachSenseUIClient:
         self,
         service: Optional[MachSensePredictionService] = None,
         api_url: Optional[str] = None,
-        prefer_api: bool = False,
+        prefer_api: Optional[bool] = None,
     ) -> None:
         """Initialize UI client.
 
@@ -88,8 +88,19 @@ class MachSenseUIClient:
             api_url: Optional base URL for FastAPI backend (e.g. 'http://127.0.0.1:8000').
             prefer_api: If True, attempts HTTP API calls first before falling back to in-process service.
         """
-        self.api_url = api_url or "http://127.0.0.1:8000"
-        self.prefer_api = prefer_api
+        import os
+
+        env_api_url = os.environ.get("MACHSENSE_API_URL") or os.environ.get("API_URL")
+        env_prefer_api = os.environ.get("MACHSENSE_PREFER_API", "").strip().lower() in ("true", "1", "yes")
+
+        self.api_url = (api_url or env_api_url or "http://127.0.0.1:8000").rstrip("/")
+        if prefer_api is not None:
+            self.prefer_api = prefer_api
+        elif env_api_url is not None:
+            self.prefer_api = True
+        else:
+            self.prefer_api = env_prefer_api
+
         self._service = service
 
         # Lazy/eager in-process service fallback
