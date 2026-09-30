@@ -1,0 +1,12 @@
+{
+  "name": "machsense-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MachSense Industrial AI Machine Health Monitoring & Predictive Maintenance System",
+  "scripts": {
+    "dev": "npm.cmd --prefix frontend run dev",
+    "build": "npm.cmd --prefix frontend run build",
+    "start": "npm.cmd --prefix frontend start",
+    "lint": "npm.cmd --prefix frontend run lint"
+  }
+}
