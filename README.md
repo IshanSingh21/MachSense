@@ -1,14 +1,15 @@
 # MachSense: Industrial AI Predictive Maintenance & Machine Health Diagnostics
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.3-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.25+-FF4B4B.svg?logo=streamlit&logoColor=white)](https://streamlit.io)
 [![SHAP](https://img.shields.io/badge/Explainability-TreeSHAP-brightgreen.svg)](https://github.com/slundberg/shap)
-[![Code style: black/ruff](https://img.shields.io/badge/code%20style-black%2Fruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
 [![Tests: 126 Passed](https://img.shields.io/badge/tests-126%20passed-success.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**MachSense** is an enterprise-grade predictive maintenance and machine health monitoring system. It processes real-time industrial telemetry (temperature gradients, spindle speeds, mechanical torque, cutting tool wear), computes physics-informed features, forecasts catastrophic machine failure with cost-calibrated decision thresholds, and provides root-cause diagnostic explanations using TreeSHAP to shop-floor operators.
+**MachSense** is an enterprise-grade predictive maintenance and machine health monitoring system. It processes real-time industrial telemetry (temperature gradients, spindle speeds, mechanical torque, cutting tool wear), computes physics-informed features, forecasts catastrophic machine failure with cost-calibrated decision thresholds ($\tau = 0.5608$), and provides root-cause diagnostic explanations using TreeSHAP on a modern **Next.js Industrial Control Center**.
 
 ---
 
@@ -21,13 +22,14 @@
 6. [Machine Learning Pipeline & Model Comparison](#machine-learning-pipeline--model-comparison)
 7. [Cost-Sensitive Evaluation & Threshold Tuning](#cost-sensitive-evaluation--threshold-tuning)
 8. [Explainable AI (TreeSHAP Root Cause Analysis)](#explainable-ai-treeshap-root-cause-analysis)
-9. [Serving Layer & API Documentation](#serving-layer--api-documentation)
-10. [Streamlit User Dashboard Walkthrough](#streamlit-user-dashboard-walkthrough)
-11. [Local Quickstart & CLI](#local-quickstart--cli)
+9. [Next.js Industrial Control Center](#nextjs-industrial-control-center)
+10. [Serving Layer & FastAPI Documentation](#serving-layer--fastapi-documentation)
+11. [Local Quickstart & Execution](#local-quickstart--execution)
 12. [Production Docker & Cloud Deployment](#production-docker--cloud-deployment)
-13. [Project Directory Structure](#project-directory-structure)
-14. [Engineering Review: Limitations & Future Roadmap](#engineering-review-limitations--future-roadmap)
-15. [Technologies & Tools](#technologies--tools)
+13. [Environment Variables Reference](#environment-variables-reference)
+14. [Project Directory Structure](#project-directory-structure)
+15. [Engineering Review: Limitations & Roadmap](#engineering-review-limitations--roadmap)
+16. [Technologies & Tools](#technologies--tools)
 
 ---
 
@@ -51,7 +53,7 @@ MachSense solves these challenges through domain-engineered physics features, PR
 - **Zero Data Leakage Ingestion**: Leakage-free splitters and a unified `ColumnTransformer` fitted exclusively on training sets.
 - **Precision-Recall Calibrated Inference**: Champion Random Forest ensemble tuned with cost-sensitive thresholding ($\tau = 0.5608$) delivering **0.893 PR-AUC** and **0.995 Test ROC-AUC**.
 - **Instant Local Explainability**: Sub-10ms TreeSHAP explanations isolating specific failure mechanisms (Heat Dissipation, Power Overload, Overstrain, Tool Wear).
-- **Dual Serving Architecture**: High-throughput FastAPI REST API backend paired with an interactive Streamlit diagnostic workstation.
+- **Modern Industrial SaaS Frontend**: Next.js 16 App Router interface styled in dark industrial mission-control theme with Recharts and Lucide icons.
 - **Production Hardened**: Built-in path traversal defense, CORS origin whitelisting, DoS batch protections (capped at 5,000 items), and Docker multi-stage containers.
 
 ---
@@ -94,10 +96,10 @@ MachSense solves these challenges through domain-engineered physics features, PR
                          |                                                 |
                          v                                                 v
 +------------------------------------------------+ +-------------------------------------------------+
-|              FASTAPI REST BACKEND              | |          STREAMLIT OPERATOR DASHBOARD           |
-| - Liveness & Readiness Probes (/health, /ready)| | - Real-time Parameter Sliders & Presets         |
-| - Single Predict & Vectorized Fleet Batch      | | - Dynamic Plotly SHAP Waterfall / Bar Charts    |
-| - Pydantic v2 Schema & Error Sanitization      | | - Fleet CSV Ingestion & Model Card Viewer       |
+|              FASTAPI REST BACKEND              | |         NEXT.JS INDUSTRIAL CONTROL CENTER       |
+| - Liveness & Readiness Probes (/health, /ready)| | - Overview KPIs, Donut Health Chart, Timeline   |
+| - Single Predict & Vectorized Fleet Batch      | | - Machines Directory & Machine Detail View      |
+| - Pydantic v2 Schema & Error Sanitization      | | - Prediction Studio, Recharts XAI Waterfall     |
 +------------------------------------------------+ +-------------------------------------------------+
 ```
 
@@ -176,7 +178,40 @@ SHAP attribution coefficients are automatically mapped to actionable shop-floor 
 
 ---
 
-## Serving Layer & API Documentation
+## Next.js Industrial Control Center
+
+The frontend provides a mission-control industrial dashboard:
+
+```
++------------------------------------------------------------------------------------+
+| ⚙️ MACHSENSE PRO [LIVE]              14:22:05 UTC • Fleet: 95.8% Nominal • ENG-408 |
++------------------------------------------------------------------------------------+
+| [Overview]  [Machines]  [Predictions]  [Analytics]  [Alerts]  [XAI]  [Settings]    |
+|                                                                                    |
+| +-------------------+ +-------------------+ +-------------------+ +---------------+ |
+| | MONITORED FLEET   | | HEALTHY MACHINES  | | AT-RISK WARNING   | | CRITICAL      | |
+| | 24 Units          | | 20 (95.8%)        | | 3 Approaching     | | 1 Action Req  | |
+| +-------------------+ +-------------------+ +-------------------+ +---------------+ |
+|                                                                                    |
+| ── Featured Machine Telemetry (CNC Heavy Lathe Alpha - CNC-002) ────────────────── |
+|  Air Temp: 302.5 K   Process Temp: 311.8 K   Torque: 62.5 Nm   Speed: 1380 RPM     |
+|  Failure Risk: 🔴 94.12% CRITICAL (Threshold: 0.5608)                              |
+|                                                                                    |
+| ── TreeSHAP Feature Attribution Waterfall (Recharts) ────────────────────────────  |
+|  overstrain_index   ████████████████████████████ (+0.3412)                         |
+|  torque_nm          ███████████████ (+0.2185)                                      |
+|  tool_wear_min      ████████████ (+0.1874)                                         |
+|  rotational_speed   ▓▓▓▓▓ (-0.0821)                                                |
+|                                                                                    |
+| ── Operator Diagnostic Guidance ─────────────────────────────────────────────────  |
+|  ⚠️ CRITICAL OVERSTRAIN DETECTED: Cutting insert wear (215 min) combined with high  |
+|     cutting torque (62.5 Nm). Action: Halt spindle cycle and inspect tool insert.  |
++------------------------------------------------------------------------------------+
+```
+
+---
+
+## Serving Layer & FastAPI Documentation
 
 The FastAPI backend provides robust, sub-10ms endpoints:
 
@@ -228,39 +263,9 @@ curl -X POST "http://127.0.0.1:8000/api/v1/predict" \
 
 ---
 
-## Streamlit User Dashboard Walkthrough
+## Local Quickstart & Execution
 
-The Streamlit interface provides an intuitive diagnostic control room:
-
-```
-+------------------------------------------------------------------------------------+
-|  ⚙️ MachSense | Industrial Machine Health Monitoring & Diagnostics                 |
-+------------------------------------------------------------------------------------+
-| [Preset Selector: Overstrain Failure (OSF) ▼]  [Active Threshold: 0.5608]          |
-|                                                                                    |
-| +-------------------------+ +-------------------------+ +------------------------+ |
-| |   HEALTH STATUS         | |   FAILURE PROBABILITY   | |   RISK LEVEL           | |
-| |   🔴 FAILURE IMMINENT   | |   94.12%                | |   CRITICAL             | |
-| +-------------------------+ +-------------------------+ +------------------------+ |
-|                                                                                    |
-| ── Diagnostic Feature Attribution (TreeSHAP) ────────────────────────────────────  |
-|  [ Plotly Interactive Horizontal Waterfall Chart ]                                 |
-|  overstrain_index   ████████████████████████████ (+0.3412)                         |
-|  torque_nm          ███████████████ (+0.2185)                                      |
-|  tool_wear_min      ████████████ (+0.1874)                                         |
-|  rotational_speed   ▓▓▓▓▓ (-0.0821)                                                |
-|                                                                                    |
-| ── Operator Actionable Alert ────────────────────────────────────────────────────  |
-|  ⚠️ CRITICAL OVERSTRAIN DETECTED: Cutting insert wear (215 min) combined with high  |
-|     cutting torque (62.5 Nm). Action: Halt spindle cycle and inspect tool insert.  |
-+------------------------------------------------------------------------------------+
-```
-
----
-
-## Local Quickstart & CLI
-
-### 1. Installation
+### 1. Backend & ML Environment Setup
 ```bash
 # Clone repository
 git clone https://github.com/IshanSingh21/MachSense.git
@@ -271,27 +276,26 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1    # On Windows PowerShell
 # source .venv/bin/activate   # On Linux/macOS
 
-# Install dependencies
+# Install backend dependencies
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 pip install -e .
-```
 
-### 2. Command Line Interface (CLI)
-
-```bash
-# Display resolved configuration and environment status
-python -m machsense.main --info
-
-# Execute live sample prediction with SHAP explanation
-python -m machsense.main --predict-sample
-
-# Launch FastAPI REST backend
+# Start FastAPI server
 python -m machsense.main --serve
-
-# Launch Streamlit Operator Dashboard
-python -m machsense.main --ui
 ```
+* **FastAPI Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+---
+
+### 2. Next.js Frontend Execution
+```bash
+# Start frontend from repository root (or cd frontend && npm run dev)
+npm.cmd run dev
+```
+* **Next.js Mission Control**: Open **[http://localhost:3000](http://localhost:3000)**
+
+---
 
 ### 3. Run Automated Tests
 ```bash
@@ -302,20 +306,28 @@ pytest tests/ -v
 
 ## Production Docker & Cloud Deployment
 
-### A. Full Stack Multi-Container (Docker Compose)
+### A. Full Stack Orchestration (Docker Compose)
+Launch the FastAPI backend, Next.js Industrial Frontend, and Streamlit fallback in isolated containers:
+
 ```bash
 docker compose up --build -d
 ```
-- **Streamlit Dashboard**: `http://localhost:8501`
-- **FastAPI OpenAPI Docs**: `http://localhost:8000/docs`
-- **Readiness Probe**: `http://localhost:8000/health/ready`
+- **Next.js Frontend**: `http://localhost:3000`
+- **FastAPI Backend & Swagger**: `http://localhost:8000/docs`
+- **Streamlit Fallback**: `http://localhost:8501`
 
-### B. Free-Tier Cloud Deployment
+---
 
-1. **Streamlit Community Cloud (1-Click UI)**:
-   - Deploy `src/machsense/ui/app.py` directly on [share.streamlit.io](https://share.streamlit.io). Runs self-contained in-process inference without external server dependencies.
-2. **Render.com (Full-Stack Blueprint)**:
-   - Link repository to [Render Dashboard](https://dashboard.render.com). Render reads `render.yaml` and provisions both `machsense-api` and `machsense-ui`.
+## Environment Variables Reference
+
+| Variable | Scope | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `NEXT_PUBLIC_API_URL` | Frontend | `http://127.0.0.1:8000` | Target FastAPI backend URL for Next.js API client |
+| `MACHSENSE_ENV` | Backend | `development` | Operating environment (`development`, `staging`, `production`) |
+| `PORT` | Backend | `8000` | Application listening port (injected dynamically by PaaS providers) |
+| `HOST` | Backend | `127.0.0.1` / `0.0.0.0` | Server bind host address |
+| `MACHSENSE_CORS_ORIGINS` | Backend | `["*"]` | Allowed CORS origins (e.g. `http://localhost:3000`) |
+| `MACHSENSE_MODELS_DIR` | Backend | `models` | Custom directory path for model artifacts |
 
 ---
 
@@ -323,61 +335,37 @@ docker compose up --build -d
 
 ```
 machsense/
-├── Dockerfile                   # Production multi-stage Dockerfile
+├── frontend/                    # Next.js 16 Industrial SaaS Control Center
+│   ├── src/
+│   │   ├── app/                 # App Router pages (/, /machines, /predictions, etc.)
+│   │   ├── components/          # Reusable UI & Recharts components
+│   │   ├── lib/                 # Typed API client & realistic mock data
+│   │   └── types/               # TypeScript interfaces
+│   ├── Dockerfile               # Multi-stage production container for Next.js
+│   ├── package.json             # Frontend dependencies (React 19, Recharts, Lucide)
+│   └── .env.example             # Frontend environment variable template
+├── package.json                 # Root workspace scripts (npm run dev/build)
+├── Dockerfile                   # Unified Python production image
 ├── Dockerfile.api               # Dedicated FastAPI microservice image
 ├── Dockerfile.ui                # Dedicated Streamlit dashboard image
-├── docker-compose.yml           # Full-stack container orchestration
-├── render.yaml                  # Render.com Infrastructure-as-Code Blueprint
-├── Procfile                     # PaaS process manager specification
+├── docker-compose.yml           # Full-stack container orchestration (API + Frontend)
 ├── pyproject.toml               # Package build metadata, tool & linter configs
 ├── requirements.txt             # Pinned production dependencies
-├── requirements-dev.txt         # Testing, linting, and development tools
-├── .streamlit/
-│   └── config.toml              # Streamlit production headless configuration
-├── configs/
-│   ├── config.yaml              # Core application parameters & path definitions
-│   └── logging.yaml             # Rotating log handler configuration
-├── models/
-│   ├── machsense_model_v1.0.0.joblib         # Serialized champion model artifact
-│   ├── machsense_preprocessor_v1.0.0.joblib  # Fitted preprocessor pipeline
-│   ├── model_metadata_v1.0.0.json            # Model lineage & hyperparameter card
-│   └── model_card.json                       # Public governance model card
-├── scripts/
-│   └── deploy_healthcheck.py    # Automated deployment verification probe CLI
-├── src/machsense/
-│   ├── api/                     # FastAPI backend (lifespan, routes, error handlers)
-│   ├── config/                  # Dynamic path resolution & Pydantic settings
-│   ├── data/                    # Ingestion, validation, cleaning & splitters
-│   ├── features/                # Physics domain extractors & preprocessor pipeline
-│   ├── inference/               # Production prediction service & boundary validator
-│   ├── models/                  # Trainers, CV optimizers, evaluation & SHAP explainer
-│   ├── ui/                      # Streamlit dashboard & Plotly visual components
-│   └── utils/                   # Structured rotating logger & shared helpers
+├── configs/                     # Application & logging configuration
+├── models/                      # Serialized champion model artifacts (v1.0.0)
+├── src/machsense/               # Core Python package (API, Data, Models, XAI)
 └── tests/                       # 126 automated unit, integration, and security tests
 ```
 
 ---
 
-## Engineering Review: Limitations & Future Roadmap
-
-### Known Limitations
-1. **Batch TreeSHAP Throughput**: Exact TreeSHAP computes Shapley values on an instance-by-instance basis. While single-instance SHAP runs in $< 10\text{ ms}$, batch SHAP on large fleets ($> 5,000$ items) is CPU-intensive.
-2. **Binary Focus**: The primary champion model classifies binary failure risk ($0$ vs. $1$). While individual physical presets demonstrate specific failure types, fine-grained multi-class failure attribution is derived post-hoc from physics features.
-
-### Future Roadmap
-- **Multi-Class Failure Mode Architecture**: Direct multi-output gradient boosted trees to concurrently output probabilities for HDF, PWF, OSF, and TWF.
-- **High-Frequency Vibration Telemetry**: Integrating FFT spectrogram feature extractors and 1D-CNN temporal autoencoders for high-frequency acoustic sensor streams.
-- **Continuous Drift Monitoring**: Prometheus/Grafana and Evidently AI integration for automated data drift and concept drift alerting in production.
-
----
-
 ## Technologies & Tools
 
+- **Frontend & Visualizations**: Next.js 16, React 19, TypeScript, Tailwind CSS v4, Recharts, Lucide Icons.
 - **Core Machine Learning**: Python 3.10+, Scikit-Learn, NumPy, Pandas, Joblib.
-- **Explainable AI (XAI)**: SHAP (TreeSHAP), Matplotlib, Plotly.
-- **API & Serving**: FastAPI, Uvicorn, Starlette, Pydantic v2, HTTPX.
-- **Frontend & Visualization**: Streamlit, Plotly Graph Objects, Rich.
-- **Engineering Quality & DevOps**: Pytest, Ruff, Docker, Docker Compose, YAML.
+- **Explainable AI (XAI)**: TreeSHAP, Additive Feature Attribution.
+- **Backend & Serving**: FastAPI, Uvicorn, Starlette, Pydantic v2, HTTPX.
+- **DevOps & Quality**: Pytest, Ruff, Docker, Docker Compose.
 
 ---
 

@@ -17,7 +17,7 @@ services:
       - HOST=0.0.0.0
       - PORT=8000
       - WEB_CONCURRENCY=2
-      - MACHSENSE_CORS_ORIGINS=["http://localhost:8501","http://127.0.0.1:8501","http://ui:8501"]
+      - MACHSENSE_CORS_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000","http://frontend:3000","http://localhost:8501","http://127.0.0.1:8501","http://ui:8501"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/ready"]
       interval: 15s
@@ -30,7 +30,27 @@ services:
       - machsense-network
 
   # ==========================================
-  # Streamlit Operator Diagnostics Dashboard
+  # Next.js Modern Industrial Control Center
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: machsense-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - machsense-network
+
+  # ==========================================
+  # Streamlit Operator Diagnostics (Fallback)
   # ==========================================
   ui:
     build:
