@@ -3,9 +3,13 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Clock, RefreshCw, Shield, User } from "lucide-react";
+import { Bell, Clock, Menu, Shield, User } from "lucide-react";
 
-export function TopNav() {
+interface TopNavProps {
+  onOpenMobile?: () => void;
+}
+
+export function TopNav({ onOpenMobile }: TopNavProps) {
   const pathname = usePathname();
   const [time, setTime] = useState<string>("");
 
@@ -37,19 +41,19 @@ export function TopNav() {
       subtitle: "Multi-axis milling centers, lathes, and high-precision spindle units",
     },
     "/predictions": {
-      title: "Predictive Inference & Diagnostics Studio",
-      subtitle: "Live sensor parameter scoring, failure mode presets, and batch CSV testing",
+      title: "Predictive Inference Studio",
+      subtitle: "Live sensor parameter scoring, failure mode presets, and batch testing",
     },
     "/analytics": {
       title: "Telemetry & Risk Analytics",
-      subtitle: "Historical sensor degradation trends, thermodynamic curves, and power loads",
+      subtitle: "Historical degradation trends, thermodynamic curves, and power loads",
     },
     "/alerts": {
       title: "Industrial Alert Center",
       subtitle: "Active anomaly warnings, threshold breaches, and operator corrective actions",
     },
     "/explainability": {
-      title: "TreeSHAP Explainable AI Center",
+      title: "TreeSHAP Explainability Center",
       subtitle: "Additive feature attributions, risk escalators, and root-cause diagnostics",
     },
     "/settings": {
@@ -65,18 +69,32 @@ export function TopNav() {
   };
 
   return (
-    <header className="h-16 bg-[#0E131F]/90 backdrop-blur border-b border-slate-800/80 px-8 flex items-center justify-between sticky top-0 z-30">
-      {/* Title & Subtitle */}
-      <div>
-        <h1 className="text-sm font-bold text-slate-100 tracking-tight flex items-center gap-2">
-          <span>{title}</span>
-          <span className="text-slate-600">/</span>
-          <span className="text-xs font-normal text-slate-400">{subtitle}</span>
-        </h1>
+    <header className="h-16 bg-[#0E131F]/90 backdrop-blur border-b border-slate-800/80 px-4 sm:px-6 md:px-8 flex items-center justify-between sticky top-0 z-30">
+      {/* Title & Hamburger Button */}
+      <div className="flex items-center gap-3">
+        {onOpenMobile && (
+          <button
+            onClick={onOpenMobile}
+            className="lg:hidden p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+            aria-label="Open Navigation Menu"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        )}
+
+        <div>
+          <h1 className="text-xs sm:text-sm font-bold text-slate-100 tracking-tight flex items-center gap-2">
+            <span>{title}</span>
+            <span className="hidden md:inline text-slate-600">/</span>
+            <span className="hidden md:inline text-xs font-normal text-slate-400">
+              {subtitle}
+            </span>
+          </h1>
+        </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2.5 sm:gap-4">
         {/* Live System Clock */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
           <Clock className="w-3.5 h-3.5 text-cyan-400" />
@@ -94,6 +112,7 @@ export function TopNav() {
           href="/alerts"
           className="relative p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 transition-colors"
           title="Active Alerts"
+          aria-label="View Active Alerts"
         >
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
@@ -104,7 +123,7 @@ export function TopNav() {
           <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
             <User className="w-4 h-4" />
           </div>
-          <div className="hidden lg:flex flex-col text-left">
+          <div className="hidden xl:flex flex-col text-left">
             <span className="text-xs font-medium text-slate-200">Lead Operator</span>
             <span className="text-[10px] text-slate-400 font-mono">ID: ENG-408</span>
           </div>
