@@ -3,8 +3,11 @@
 import React, { useState } from "react";
 import {
   Activity,
+  AlertOctagon,
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
+  Cpu,
   FileSpreadsheet,
   Info,
   Layers,
@@ -12,11 +15,11 @@ import {
   RefreshCw,
   Sliders,
   Sparkles,
-  Upload,
+  Zap,
 } from "lucide-react";
 import { ShapWaterfallChart } from "@/components/charts/ShapWaterfallChart";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { api } from "@/lib/api";
+import { api, SENSOR_LIMITS, validateTelemetryInput } from "@/lib/api";
 import { FAILURE_PRESETS } from "@/lib/mockData";
 import {
   BatchPredictionResponse,
@@ -43,8 +46,9 @@ export default function PredictionsPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  // Batch CSV State
+  // Batch State
   const [batchLoading, setBatchLoading] = useState<boolean>(false);
   const [batchResult, setBatchResult] = useState<BatchPredictionResponse | null>(null);
   const [batchError, setBatchError] = useState<string | null>(null);
@@ -56,12 +60,20 @@ export default function PredictionsPage() {
       setTelemetry({ ...p.telemetry });
       setPrediction(null);
       setError(null);
+      setValidationErrors([]);
     }
   };
 
   // Run single prediction
   const handlePredict = async (e: React.FormEvent) => {
     e.preventDefault();
+    const vErrors = validateTelemetryInput(telemetry);
+    if (vErrors.length > 0) {
+      setValidationErrors(vErrors);
+      return;
+    }
+
+    setValidationErrors([]);
     setLoading(true);
     setError(null);
 
@@ -72,24 +84,24 @@ export default function PredictionsPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Prediction failed. Verify that FastAPI server is active on http://127.0.0.1:8000"
+          : "Prediction request failed. Ensure the FastAPI backend server is active on http://127.0.0.1:8000"
       );
     } finally {
       setLoading(false);
     }
   };
 
-  // Batch evaluation demo
+  // Batch sample evaluation
   const handleRunSampleBatch = async () => {
     setBatchLoading(true);
     setBatchError(null);
 
     const sampleFleet: TelemetryItem[] = [
-      { type: "M", air_temperature_k: 298.1, process_temperature_k: 308.6, rotational_speed_rpm: 1550, torque_nm: 40, tool_wear_min: 30, udi: 1 },
-      { type: "L", air_temperature_k: 302.8, process_temperature_k: 311.2, rotational_speed_rpm: 1360, torque_nm: 52, tool_wear_min: 105, udi: 2 },
-      { type: "L", air_temperature_k: 300.5, process_temperature_k: 310.8, rotational_speed_rpm: 2840, torque_nm: 65, tool_wear_min: 35, udi: 3 },
-      { type: "L", air_temperature_k: 302.5, process_temperature_k: 311.8, rotational_speed_rpm: 1380, torque_nm: 62.5, tool_wear_min: 215, udi: 4 },
-      { type: "M", air_temperature_k: 299.0, process_temperature_k: 309.2, rotational_speed_rpm: 1420, torque_nm: 48, tool_wear_min: 240, udi: 5 },
+      { type: "M", air_temperature_k: 298.1, process_temperature_k: 308.6, rotational_speed_rpm: 1550, torque_nm: 40, tool_wear_min: 30, udi: 1, product_id: "M21801" },
+      { type: "L", air_temperature_k: 302.8, process_temperature_k: 311.2, rotational_speed_rpm: 1360, torque_nm: 52, tool_wear_min: 105, udi: 2, product_id: "L47102" },
+      { type: "L", air_temperature_k: 300.5, process_temperature_k: 310.8, rotational_speed_rpm: 2840, torque_nm: 65, tool_wear_min: 35, udi: 3, product_id: "L47103" },
+      { type: "L", air_temperature_k: 302.5, process_temperature_k: 311.8, rotational_speed_rpm: 1380, torque_nm: 62.5, tool_wear_min: 215, udi: 4, product_id: "L47104" },
+      { type: "M", air_temperature_k: 299.0, process_temperature_k: 309.2, rotational_speed_rpm: 1420, torque_nm: 48, tool_wear_min: 240, udi: 5, product_id: "M21805" },
     ];
 
     try {
@@ -108,8 +120,8 @@ export default function PredictionsPage() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Mode Switcher Tabs */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      {/* 1. Mode Switcher & Active Model Badge */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
         <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs">
           <button
             onClick={() => setActiveTab("single")}
@@ -135,34 +147,35 @@ export default function PredictionsPage() {
           </button>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>Champion Model: Tuned Random Forest (v1.0.0)</span>
+        <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>Active Engine: Tuned Random Forest (v1.0.0)</span>
         </div>
       </div>
 
       {activeTab === "single" ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: Presets & Form Controls (5 cols) */}
+          {/* Left Column: Domain Presets & Sensor Form (5 cols) */}
           <div className="lg:col-span-5 space-y-5">
             {/* Presets Selector */}
             <div className="bg-[#111827] border border-slate-800 p-5 rounded-2xl">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-cyan-400" />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
                   Domain Failure Presets
                 </h3>
               </div>
               <p className="text-xs text-slate-400 mb-3">
-                Load physical sensor failure signatures directly into the telemetry inputs:
+                Load authentic physical sensor failure signatures directly into the model inputs:
               </p>
 
               <div className="grid grid-cols-1 gap-2">
                 {FAILURE_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
+                    type="button"
                     onClick={() => handleApplyPreset(preset.id)}
-                    className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-left transition-all group flex items-start justify-between gap-2"
+                    className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-left transition-all group flex items-start justify-between gap-2 cursor-pointer"
                   >
                     <div>
                       <div className="flex items-center gap-2">
@@ -185,25 +198,40 @@ export default function PredictionsPage() {
               </div>
             </div>
 
-            {/* Telemetry Input Form */}
+            {/* Validation Errors Box */}
+            {validationErrors.length > 0 && (
+              <div className="p-3.5 rounded-xl bg-amber-950/30 border border-amber-800/60 text-xs text-amber-300 space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-amber-200">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>Physical Boundary Warnings:</span>
+                </div>
+                <ul className="list-disc pl-4 space-y-0.5 text-[11px]">
+                  {validationErrors.map((err, idx) => (
+                    <li key={idx}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Input Form */}
             <form
               onSubmit={handlePredict}
               className="bg-[#111827] border border-slate-800 p-5 rounded-2xl space-y-4"
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <Sliders className="w-4 h-4 text-cyan-400" />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                    Telemetry Input Parameters
+                    Sensor Telemetry Inputs
                   </h3>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400">SI Units</span>
+                <span className="text-[11px] font-mono text-slate-400">SI Physical Units</span>
               </div>
 
               {/* Machine Type */}
               <div>
                 <label className="text-xs font-medium text-slate-300 block mb-1.5">
-                  Machine Quality Type
+                  Machine Quality Variant (Type)
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {(["L", "M", "H"] as MachineType[]).map((t) => (
@@ -211,13 +239,13 @@ export default function PredictionsPage() {
                       key={t}
                       type="button"
                       onClick={() => setTelemetry({ ...telemetry, type: t })}
-                      className={`py-1.5 rounded-lg text-xs font-bold font-mono transition-colors ${
+                      className={`py-1.5 rounded-lg text-xs font-bold font-mono transition-colors cursor-pointer ${
                         telemetry.type === t
-                          ? "bg-cyan-600 text-white"
+                          ? "bg-cyan-600 text-white shadow-sm"
                           : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"
                       }`}
                     >
-                      Type {t} {t === "L" ? "(Low)" : t === "M" ? "(Med)" : "(High)"}
+                      Type {t} {t === "L" ? "(Low 50%)" : t === "M" ? "(Med 30%)" : "(High 20%)"}
                     </button>
                   ))}
                 </div>
@@ -226,7 +254,7 @@ export default function PredictionsPage() {
               {/* Air Temperature */}
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Air Temperature (K)</span>
+                  <span className="text-slate-300">Ambient Air Temperature (T_air)</span>
                   <span className="font-mono text-cyan-400 font-bold">{telemetry.air_temperature_k} K</span>
                 </div>
                 <input
@@ -238,14 +266,14 @@ export default function PredictionsPage() {
                   onChange={(e) =>
                     setTelemetry({ ...telemetry, air_temperature_k: parseFloat(e.target.value) })
                   }
-                  className="w-full accent-cyan-500"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
               {/* Process Temperature */}
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Process Temperature (K)</span>
+                  <span className="text-slate-300">Process Chamber Temperature (T_process)</span>
                   <span className="font-mono text-cyan-400 font-bold">{telemetry.process_temperature_k} K</span>
                 </div>
                 <input
@@ -257,14 +285,14 @@ export default function PredictionsPage() {
                   onChange={(e) =>
                     setTelemetry({ ...telemetry, process_temperature_k: parseFloat(e.target.value) })
                   }
-                  className="w-full accent-cyan-500"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
               {/* Rotational Speed */}
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Rotational Speed (RPM)</span>
+                  <span className="text-slate-300">Spindle Rotational Speed (ω)</span>
                   <span className="font-mono text-cyan-400 font-bold">{telemetry.rotational_speed_rpm} RPM</span>
                 </div>
                 <input
@@ -276,14 +304,14 @@ export default function PredictionsPage() {
                   onChange={(e) =>
                     setTelemetry({ ...telemetry, rotational_speed_rpm: parseFloat(e.target.value) })
                   }
-                  className="w-full accent-cyan-500"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
               {/* Torque */}
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Mechanical Torque (Nm)</span>
+                  <span className="text-slate-300">Mechanical Spindle Torque (τ)</span>
                   <span className="font-mono text-cyan-400 font-bold">{telemetry.torque_nm} Nm</span>
                 </div>
                 <input
@@ -295,14 +323,14 @@ export default function PredictionsPage() {
                   onChange={(e) =>
                     setTelemetry({ ...telemetry, torque_nm: parseFloat(e.target.value) })
                   }
-                  className="w-full accent-cyan-500"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
               {/* Tool Wear */}
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Cumulative Tool Wear (min)</span>
+                  <span className="text-slate-300">Cumulative Tool Wear Time (t_wear)</span>
                   <span className="font-mono text-cyan-400 font-bold">{telemetry.tool_wear_min} min</span>
                 </div>
                 <input
@@ -314,11 +342,11 @@ export default function PredictionsPage() {
                   onChange={(e) =>
                     setTelemetry({ ...telemetry, tool_wear_min: parseFloat(e.target.value) })
                   }
-                  className="w-full accent-cyan-500"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
-              {/* Threshold Override */}
+              {/* Calibrated Threshold Override */}
               <div className="pt-3 border-t border-slate-800">
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-400 font-medium">Decision Threshold (τ)</span>
@@ -331,31 +359,31 @@ export default function PredictionsPage() {
                   step="0.01"
                   value={threshold}
                   onChange={(e) => setThreshold(parseFloat(e.target.value))}
-                  className="w-full accent-amber-500"
+                  className="w-full accent-amber-500 cursor-pointer"
                 />
-                <span className="text-[10px] text-slate-400">
-                  Optimal calibrated threshold: 0.5608 (Maximizes F1 & bounds recall)
+                <span className="text-[10px] text-slate-400 block mt-1">
+                  Optimal calibrated threshold: 0.5608 (Bounds recall while maximizing F1).
                 </span>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Play className={`w-4 h-4 fill-white ${loading ? "animate-spin" : ""}`} />
-                <span>{loading ? "Running Neural TreeSHAP Engine..." : "Execute Prediction"}</span>
+                <span>{loading ? "Computing Physics & TreeSHAP Attributions..." : "Execute FastAPI Prediction"}</span>
               </button>
             </form>
           </div>
 
-          {/* Right Column: Prediction Results & SHAP Waterfall (7 cols) */}
+          {/* Right Column: Prediction Results & Explainability (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
             {error && (
               <div className="p-4 rounded-xl bg-rose-950/30 border border-rose-800 text-xs text-rose-300 flex items-start gap-3">
                 <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-rose-200">API Execution Error: </span>
+                  <span className="font-bold text-rose-200">API Connection Error: </span>
                   {error}
                 </div>
               </div>
@@ -367,20 +395,24 @@ export default function PredictionsPage() {
                 <div
                   className={`p-6 rounded-2xl border ${
                     prediction.predicted_label === "FAILURE_IMMINENT"
-                      ? "bg-rose-950/20 border-rose-800/80 shadow-lg shadow-rose-950/30"
-                      : "bg-emerald-950/20 border-emerald-800/80 shadow-lg shadow-emerald-950/30"
+                      ? "bg-rose-950/20 border-rose-800/80 shadow-xl shadow-rose-950/30"
+                      : "bg-emerald-950/20 border-emerald-800/80 shadow-xl shadow-emerald-950/30"
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
                       <span
-                        className={`p-2 rounded-xl border ${
+                        className={`p-2.5 rounded-xl border ${
                           prediction.predicted_label === "FAILURE_IMMINENT"
                             ? "bg-rose-950 text-rose-400 border-rose-800"
                             : "bg-emerald-950 text-emerald-400 border-emerald-800"
                         }`}
                       >
-                        <Activity className="w-5 h-5" />
+                        {prediction.predicted_label === "FAILURE_IMMINENT" ? (
+                          <AlertOctagon className="w-5 h-5" />
+                        ) : (
+                          <CheckCircle2 className="w-5 h-5" />
+                        )}
                       </span>
                       <div>
                         <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
@@ -389,33 +421,27 @@ export default function PredictionsPage() {
                         <h2 className="text-lg font-bold text-slate-100">
                           {prediction.predicted_label === "FAILURE_IMMINENT"
                             ? "CRITICAL: Machine Failure Imminent"
-                            : "NOMINAL: Machine Operating Normally"}
+                            : "NOMINAL: Machine Operating Within Limits"}
                         </h2>
                       </div>
                     </div>
 
-                    <StatusBadge
-                      status={prediction.risk_level as any}
-                      size="md"
-                    />
+                    <StatusBadge status={prediction.risk_level as any} size="md" />
                   </div>
 
-                  {/* Failure Probability Bar */}
+                  {/* Failure Probability Progress Track */}
                   <div className="space-y-2 mt-4">
                     <div className="flex justify-between text-xs font-mono">
                       <span className="text-slate-400">Failure Risk Probability:</span>
                       <span
                         className={`font-bold text-base ${
-                          prediction.failure_probability > 0.5
-                            ? "text-rose-400"
-                            : "text-emerald-400"
+                          prediction.failure_probability > 0.5 ? "text-rose-400" : "text-emerald-400"
                         }`}
                       >
                         {(prediction.failure_probability * 100).toFixed(2)}%
                       </span>
                     </div>
 
-                    {/* Progress Track */}
                     <div className="w-full h-3 rounded-full bg-slate-900 overflow-hidden relative border border-slate-800">
                       <div
                         className={`h-full transition-all duration-500 rounded-full ${
@@ -425,7 +451,6 @@ export default function PredictionsPage() {
                         }`}
                         style={{ width: `${Math.min(100, prediction.failure_probability * 100)}%` }}
                       />
-                      {/* Threshold marker */}
                       <div
                         className="absolute top-0 bottom-0 w-0.5 bg-white shadow-sm"
                         style={{ left: `${threshold * 100}%` }}
@@ -434,15 +459,14 @@ export default function PredictionsPage() {
                     </div>
 
                     <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                      <span>0% Nominal</span>
+                      <span>0% Safe</span>
                       <span className="text-amber-400 font-medium">
                         Active Threshold: {(threshold * 100).toFixed(1)}%
                       </span>
-                      <span>100% Critical</span>
+                      <span>100% Failure</span>
                     </div>
                   </div>
 
-                  {/* Latency & Metadata */}
                   <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-[11px] text-slate-400 font-mono">
                     <span>Model: {prediction.model_version}</span>
                     <span>Latency: {prediction.latency_ms.toFixed(2)} ms</span>
@@ -455,25 +479,25 @@ export default function PredictionsPage() {
                     <div className="flex items-center gap-2 mb-2 text-cyan-400">
                       <Info className="w-4 h-4" />
                       <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                        Operator Guidance & Diagnostic Alert
+                        Operator Actionable Diagnostic Guidance
                       </h3>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed font-mono bg-slate-900 p-3 rounded-xl border border-slate-800/80">
+                    <p className="text-xs text-slate-300 leading-relaxed font-mono bg-slate-900 p-3.5 rounded-xl border border-slate-800/80">
                       {prediction.operator_summary}
                     </p>
                   </div>
                 )}
 
-                {/* SHAP Feature Attribution Waterfall */}
+                {/* TreeSHAP Feature Attribution Waterfall */}
                 <div className="bg-[#111827] border border-slate-800 p-5 rounded-2xl">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Layers className="w-4 h-4 text-cyan-400" />
                       <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                        TreeSHAP Local Feature Contribution
+                        TreeSHAP Additive Attribution Breakdown
                       </h3>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-mono">Additive Shapley Values</span>
+                    <span className="text-[10px] text-slate-400 font-mono">Shapley Values (ϕ)</span>
                   </div>
 
                   <ShapWaterfallChart
@@ -492,9 +516,9 @@ export default function PredictionsPage() {
             ) : (
               <div className="h-full min-h-[400px] flex flex-col items-center justify-center p-8 bg-[#111827] border border-dashed border-slate-800 rounded-2xl text-center">
                 <Activity className="w-12 h-12 text-slate-600 mb-3" />
-                <h3 className="text-sm font-bold text-slate-200">Inference Studio Ready</h3>
+                <h3 className="text-sm font-bold text-slate-200">Prediction Studio Ready</h3>
                 <p className="text-xs text-slate-400 max-w-sm mt-1">
-                  Adjust the telemetry sliders on the left or choose a failure preset to run real-time predictive diagnostics.
+                  Adjust the telemetry sliders on the left or click a failure preset to run real-time predictive diagnostics.
                 </p>
               </div>
             )}
@@ -504,9 +528,9 @@ export default function PredictionsPage() {
         /* Batch Prediction Tab */
         <div className="space-y-6">
           <div className="bg-[#111827] border border-slate-800 p-6 rounded-2xl">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-100">Batch Fleet Telemetry Evaluation</h3>
+                <h3 className="text-sm font-bold text-slate-100">Fleet Batch Telemetry Scoring</h3>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Vectorized multi-machine inference via FastAPI <code className="text-cyan-400">/api/v1/predict/batch</code> (Capped at 5,000 records).
                 </p>
@@ -560,20 +584,20 @@ export default function PredictionsPage() {
                         <th className="py-2.5 px-3">Threshold Used</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800">
+                    <tbody className="divide-y divide-slate-800 font-mono">
                       {batchResult.predictions.map((p, idx) => (
                         <tr key={idx} className="hover:bg-slate-800/40">
-                          <td className="py-2.5 px-3 font-mono text-slate-300">UDI-{p.udi || idx + 1}</td>
+                          <td className="py-2.5 px-3 text-slate-300">UDI-{p.udi || idx + 1}</td>
                           <td className="py-2.5 px-3">
                             <StatusBadge status={p.predicted_label === "FAILURE_IMMINENT" ? "CRITICAL" : "HEALTHY"} size="sm" label={p.predicted_label} />
                           </td>
-                          <td className="py-2.5 px-3 font-semibold text-slate-300">{p.risk_level}</td>
-                          <td className="py-2.5 px-3 font-mono font-bold">
+                          <td className="py-2.5 px-3 font-semibold text-slate-300 font-sans">{p.risk_level}</td>
+                          <td className="py-2.5 px-3 font-bold">
                             <span className={p.failure_probability > 0.5 ? "text-rose-400" : "text-emerald-400"}>
                               {(p.failure_probability * 100).toFixed(2)}%
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 font-mono text-slate-400">{p.threshold_used}</td>
+                          <td className="py-2.5 px-3 text-slate-400">{p.threshold_used}</td>
                         </tr>
                       ))}
                     </tbody>
