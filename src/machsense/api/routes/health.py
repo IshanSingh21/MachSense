@@ -65,6 +65,13 @@ async def get_readiness(
     service: MachSensePredictionService | None = getattr(request.app.state, "prediction_service", None)
 
     if service is None or getattr(service, "model", None) is None:
+        try:
+            service = MachSensePredictionService(eager_load_explainer=True)
+            request.app.state.prediction_service = service
+        except Exception as exc:
+            logger.warning("Readiness probe could not lazily initialize prediction service: %s", str(exc))
+
+    if service is None or getattr(service, "model", None) is None:
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             content={
