@@ -27,10 +27,20 @@ def get_prediction_service(request: Request) -> MachSensePredictionService:
     service: Optional[MachSensePredictionService] = getattr(request.app.state, "prediction_service", None)
 
     if service is None:
-        logger.error("MachSensePredictionService is not available in application state.")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="MachSense prediction service is initializing or currently unavailable.",
-        )
+        logger.warning("MachSensePredictionService not found in application state. Initializing on-demand...")
+        try:
+            service = MachSensePredictionService(eager_load_explainer=True)
+            request.app.state.prediction_service = service
+            logger.info(
+                "MachSensePredictionService lazily initialized successfully: %s (%s)",
+                service.model_name,
+                service.model_version,
+            )
+        except Exception as exc:
+            logger.error("Failed to lazily initialize MachSensePredictionService: %s", str(exc), exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="MachSense prediction service is initializing or currently unavailable.",
+            )
 
     return service
