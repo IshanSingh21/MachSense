@@ -147,12 +147,30 @@ class ModelRegistry:
         if not prep_path.exists():
             raise FileNotFoundError(f"Preprocessor artifact not found at: {prep_path}")
 
-        model = joblib.load(model_path)
-        preprocessor = joblib.load(prep_path)
+        try:
+            model = joblib.load(model_path)
+        except Exception as model_err:
+            if version is None and (self.models_dir / "machsense_model_v1.0.0.joblib").exists():
+                logger.warning("Failed to load active model alias, falling back to versioned v1.0.0: %s", str(model_err))
+                model = joblib.load(self.models_dir / "machsense_model_v1.0.0.joblib")
+            else:
+                raise model_err
+
+        try:
+            preprocessor = joblib.load(prep_path)
+        except Exception as prep_err:
+            if version is None and (self.models_dir / "machsense_preprocessor_v1.0.0.joblib").exists():
+                logger.warning("Failed to load active preprocessor alias, falling back to versioned v1.0.0: %s", str(prep_err))
+                preprocessor = joblib.load(self.models_dir / "machsense_preprocessor_v1.0.0.joblib")
+            else:
+                raise prep_err
 
         metadata = {}
         if meta_path.exists():
             with open(meta_path, "r", encoding="utf-8") as f:
+                metadata = json.load(f)
+        elif (self.models_dir / "model_metadata_v1.0.0.json").exists():
+            with open(self.models_dir / "model_metadata_v1.0.0.json", "r", encoding="utf-8") as f:
                 metadata = json.load(f)
 
         logger.info("Loaded artifacts successfully from: %s", model_path)
