@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request, status
 from fastapi.responses import JSONResponse
 
 from machsense import __version__
+from machsense.api.dependencies import get_prediction_service
 from machsense.api.schemas import HealthResponse, ReadinessResponse, RootResponse
 from machsense.config.settings import get_settings
 from machsense.inference.pipeline import MachSensePredictionService
@@ -62,14 +63,11 @@ async def get_readiness(
     request: Request,
 ) -> ReadinessResponse:
     """Readiness probe checking memory-loaded ML artifacts."""
-    service: MachSensePredictionService | None = getattr(request.app.state, "prediction_service", None)
-
-    if service is None or getattr(service, "model", None) is None:
-        try:
-            service = MachSensePredictionService(eager_load_explainer=True)
-            request.app.state.prediction_service = service
-        except Exception as exc:
-            logger.warning("Readiness probe could not lazily initialize prediction service: %s", str(exc))
+    try:
+        service = get_prediction_service(request)
+    except Exception as exc:
+        logger.warning("Readiness probe encountered error retrieving prediction service: %s", str(exc))
+        service = None
 
     if service is None or getattr(service, "model", None) is None:
         return JSONResponse(
