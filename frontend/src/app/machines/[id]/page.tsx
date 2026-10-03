@@ -397,7 +397,7 @@ export default function MachineDetailPage({
                 </p>
               </div>
             </div>
-            <span className="font-mono text-slate-400 shrink-0">Today, 10:42 UTC</span>
+            <span className="font-mono text-slate-400 shrink-0">Today, 10:42 AM</span>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-900 border border-slate-800/80 flex items-start justify-between gap-3">

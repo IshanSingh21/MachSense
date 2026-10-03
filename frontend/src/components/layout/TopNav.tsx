@@ -12,20 +12,35 @@ interface TopNavProps {
 export function TopNav({ onOpenMobile }: TopNavProps) {
   const pathname = usePathname();
   const [time, setTime] = useState<string>("");
+  const [timeZoneName, setTimeZoneName] = useState<string>("");
+  const [timeZoneId, setTimeZoneId] = useState<string>("");
 
   useEffect(() => {
     function updateClock() {
       const now = new Date();
-      setTime(
-        now.toLocaleTimeString("en-US", {
-          hour12: false,
-          hour: "2-digit",
+      try {
+        const formattedTime = now.toLocaleTimeString(undefined, {
+          hour: "numeric",
           minute: "2-digit",
           second: "2-digit",
-          timeZone: "UTC",
-        }) + " UTC"
-      );
+          hour12: true,
+        });
+
+        const tz =
+          Intl.DateTimeFormat(undefined, { timeZoneName: "short" })
+            .formatToParts(now)
+            .find((p) => p.type === "timeZoneName")?.value || "";
+
+        const resolvedTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+
+        setTime(formattedTime);
+        setTimeZoneName(tz);
+        setTimeZoneId(resolvedTz);
+      } catch {
+        setTime(now.toLocaleTimeString());
+      }
     }
+
     updateClock();
     const interval = setInterval(updateClock, 1000);
     return () => clearInterval(interval);
@@ -96,9 +111,14 @@ export function TopNav({ onOpenMobile }: TopNavProps) {
       {/* Right Controls */}
       <div className="flex items-center gap-2.5 sm:gap-4">
         {/* Live System Clock */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
+        <div
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300"
+          title={timeZoneId ? `Local Browser Time (${timeZoneId})` : "Local System Clock"}
+        >
           <Clock className="w-3.5 h-3.5 text-cyan-400" />
-          <span>{time || "00:00:00 UTC"}</span>
+          <span>
+            {time ? `${time}${timeZoneName ? ` ${timeZoneName}` : ""}` : "--:--:--"}
+          </span>
         </div>
 
         {/* Fleet Health Badge */}
