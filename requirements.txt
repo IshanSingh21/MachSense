@@ -16,7 +16,6 @@ fastapi>=0.100.0
 uvicorn>=0.23.0
 httpx>=0.24.0
 
-# Interactive Dashboard & Visualizations
-streamlit>=1.25.0
+# CLI & Visualizations
 plotly>=5.15.0
 rich>=13.0.0

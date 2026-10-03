@@ -68,7 +68,7 @@ TELEMETRY_PRESETS: dict[str, dict[str, Any]] = {
 
 
 class MachSenseUIClient:
-    """Client providing a clean interface for the Streamlit UI without exposing ML internals.
+    """Client providing a clean programmatic interface for inference services without exposing ML internals.
 
     Supports dual operating modes:
     1. HTTP API Mode: Connects to a running FastAPI backend (e.g. http://127.0.0.1:8000).

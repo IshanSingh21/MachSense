@@ -1,4 +1,4 @@
-"""User-facing Streamlit dashboard package for MachSense."""
+"""Python client and telemetry fixtures package for MachSense."""
 
 from machsense.ui.client import TELEMETRY_PRESETS, MachSenseUIClient
 

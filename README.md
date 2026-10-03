@@ -307,14 +307,13 @@ pytest tests/ -v
 ## Production Docker & Cloud Deployment
 
 ### A. Full Stack Orchestration (Docker Compose)
-Launch the FastAPI backend, Next.js Industrial Frontend, and Streamlit fallback in isolated containers:
+Launch the FastAPI backend and Next.js Industrial Frontend in isolated containers:
 
 ```bash
 docker compose up --build -d
 ```
 - **Next.js Frontend**: `http://localhost:3000`
 - **FastAPI Backend & Swagger**: `http://localhost:8000/docs`
-- **Streamlit Fallback**: `http://localhost:8501`
 
 ---
 
@@ -345,16 +344,15 @@ machsense/
 │   ├── package.json             # Frontend dependencies (React 19, Recharts, Lucide)
 │   └── .env.example             # Frontend environment variable template
 ├── package.json                 # Root workspace scripts (npm run dev/build)
-├── Dockerfile                   # Unified Python production image
+├── Dockerfile                   # FastAPI Python production image
 ├── Dockerfile.api               # Dedicated FastAPI microservice image
-├── Dockerfile.ui                # Dedicated Streamlit dashboard image
 ├── docker-compose.yml           # Full-stack container orchestration (API + Frontend)
 ├── pyproject.toml               # Package build metadata, tool & linter configs
 ├── requirements.txt             # Pinned production dependencies
 ├── configs/                     # Application & logging configuration
 ├── models/                      # Serialized champion model artifacts (v1.0.0)
 ├── src/machsense/               # Core Python package (API, Data, Models, XAI)
-└── tests/                       # 126 automated unit, integration, and security tests
+└── tests/                       # Automated unit, integration, and security tests
 ```
 
 ---

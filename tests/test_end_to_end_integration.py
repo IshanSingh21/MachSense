@@ -1,7 +1,7 @@
-"""Comprehensive End-to-End System Integration Tests for MachSense (Day 12).
+"""Comprehensive End-to-End System Integration Tests for MachSense.
 
 Verifies full connectivity across:
-Streamlit UI Client <-> FastAPI Backend <-> Prediction Pipeline <-> Preprocessing <-> ML Model <-> TreeSHAP Explainability.
+Client Fixtures <-> FastAPI Backend <-> Prediction Pipeline <-> Preprocessing <-> ML Model <-> TreeSHAP Explainability.
 """
 
 import tempfile

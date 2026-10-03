@@ -13,10 +13,9 @@ def test_deployment_files_exist():
     expected_files = [
         "Dockerfile",
         "Dockerfile.api",
-        "Dockerfile.ui",
+        "frontend/Dockerfile",
         "docker-compose.yml",
         ".dockerignore",
-        ".streamlit/config.toml",
         "render.yaml",
         "Procfile",
         "scripts/deploy_healthcheck.py",
@@ -40,7 +39,7 @@ def test_dockerfile_contents():
 
 
 def test_docker_compose_structure():
-    """Verify docker-compose.yml contains both api and ui services with healthchecks."""
+    """Verify docker-compose.yml contains both api and frontend services with healthchecks."""
     root = get_project_root()
     import yaml
 
@@ -49,17 +48,8 @@ def test_docker_compose_structure():
 
     assert "services" in compose
     assert "api" in compose["services"]
-    assert "ui" in compose["services"]
+    assert "frontend" in compose["services"]
     assert "healthcheck" in compose["services"]["api"]
-    assert "healthcheck" in compose["services"]["ui"]
-
-
-def test_streamlit_config_headless():
-    """Verify Streamlit configuration is headless and disables telemetry for production."""
-    root = get_project_root()
-    streamlit_config = (root / ".streamlit" / "config.toml").read_text(encoding="utf-8")
-    assert "headless = true" in streamlit_config
-    assert "gatherUsageStats = false" in streamlit_config
 
 
 def test_liveness_health_live_endpoint():

@@ -1,6 +1,6 @@
 # ==============================================================================
-# MachSense Unified Production Container
-# Supports: FastAPI Backend (--serve) & Streamlit Dashboard (--ui)
+# MachSense FastAPI Backend Production Container
+# Supports: FastAPI Predictive Maintenance Engine (--serve)
 # ==============================================================================
 
 FROM python:3.11-slim as base
@@ -40,8 +40,8 @@ RUN useradd -m -u 1000 machsense && \
 
 USER machsense
 
-# Expose default API and UI ports
-EXPOSE 8000 8501
+# Expose default API port
+EXPOSE 8000
 
 # Default Container Healthcheck (Liveness Probe)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
