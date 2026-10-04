@@ -214,6 +214,9 @@ The frontend provides a mission-control industrial dashboard:
 ## Serving Layer & FastAPI Documentation
 
 The FastAPI backend provides robust, sub-10ms endpoints:
+- **FastAPI Backend API**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- **FastAPI Interactive Docs (Swagger UI)**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **FastAPI Alternative Docs (ReDoc)**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ### Core Endpoints
 
@@ -284,7 +287,8 @@ pip install -e .
 # Start FastAPI server
 python -m machsense.main --serve
 ```
-* **FastAPI Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+* **FastAPI Server**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+* **FastAPI Interactive Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
@@ -312,8 +316,9 @@ Launch the FastAPI backend and Next.js Industrial Frontend in isolated container
 ```bash
 docker compose up --build -d
 ```
-- **Next.js Frontend**: `http://localhost:3000`
-- **FastAPI Backend & Swagger**: `http://localhost:8000/docs`
+- **Next.js Frontend**: [http://localhost:3000](http://localhost:3000)
+- **FastAPI Backend**: [http://localhost:8000](http://localhost:8000)
+- **FastAPI Interactive Docs (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
