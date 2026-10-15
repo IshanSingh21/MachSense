@@ -322,15 +322,81 @@ docker compose up --build -d
 
 ---
 
+### B. Backend Cloud Deployment (Render)
+
+Deploy the FastAPI inference engine as a Web Service on Render using either the blueprint (`render.yaml`) or manual setup:
+
+1. **Create Web Service**:
+   - Link your GitHub repository in the Render Dashboard (`New +` -> `Web Service`).
+   - **Root Directory**: `.` (repository root)
+   - **Runtime**: `Python`
+   - **Region**: Choose closest to users (e.g. `Oregon (US West)` or `Frankfurt (EU Central)`)
+   - **Branch**: `main`
+
+2. **Build & Start Commands**:
+   - **Build Command**:
+     ```bash
+     pip install -U pip && pip install -r requirements.txt && pip install -e .
+     ```
+   - **Start Command**:
+     ```bash
+     uvicorn machsense.api.app:app --host 0.0.0.0 --port $PORT --workers 1
+     ```
+
+3. **Health Check Path**:
+   - Set **Health Check Path** to `/health/ready` (confirms model artifacts and TreeSHAP explainer are loaded).
+
+4. **Environment Variables on Render**:
+   | Key | Value | Notes |
+   | :--- | :--- | :--- |
+   | `PYTHON_VERSION` | `3.11.8` | Guaranteed binary wheels for scikit-learn & SHAP |
+   | `MACHSENSE_ENV` | `production` | Enables production error handling & disabled reload |
+   | `PYTHONPATH` | `./src` | Ensures `machsense` package resolution |
+   | `WEB_CONCURRENCY` | `1` | Retains memory footprint (~135 MB) within 512 MB Free Tier limit |
+   | `MACHSENSE_CORS_ORIGINS` | `https://your-frontend.vercel.app,http://localhost:3000` | Replace with your deployed Vercel domain |
+   | `MACHSENSE_CORS_REGEX` | `https://.*\.vercel\.app` | *(Optional)* Allows Vercel preview/branch deployments |
+
+---
+
+### C. Frontend Cloud Deployment (Vercel)
+
+Deploy the Next.js modern control center to Vercel:
+
+1. **Import Project**:
+   - Connect your GitHub repository in the [Vercel Dashboard](https://vercel.com/new).
+   - In **Project Settings**, configure **Root Directory**:
+     - Click **Edit** next to Root Directory and select **`frontend`**.
+
+2. **Build & Output Settings**:
+   - **Framework Preset**: `Next.js`
+   - **Build Command**: `next build` (or leave default)
+   - **Output Directory**: `.next` (default)
+   - **Install Command**: `npm install` (default)
+
+3. **Environment Variables on Vercel**:
+   Add the following environment variable under **Settings -> Environment Variables**:
+   | Variable | Value | Description |
+   | :--- | :--- | :--- |
+   | `NEXT_PUBLIC_API_URL` | `https://your-machsense-api.onrender.com` | Your public Render FastAPI URL (no trailing slash) |
+
+4. **Deploy**:
+   - Click **Deploy**. Vercel will build and assign your production URL (e.g., `https://machsense-xyz.vercel.app`).
+   - Copy this URL and update `MACHSENSE_CORS_ORIGINS` in your Render backend settings.
+
+---
+
 ## Environment Variables Reference
 
 | Variable | Scope | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | Frontend | `http://127.0.0.1:8000` | Target FastAPI backend URL for Next.js API client |
+| `NEXT_PUBLIC_API_URL` | Frontend | `http://127.0.0.1:8000` | Public Render FastAPI URL for Next.js client |
 | `MACHSENSE_ENV` | Backend | `development` | Operating environment (`development`, `staging`, `production`) |
-| `PORT` | Backend | `8000` | Application listening port (injected dynamically by PaaS providers) |
-| `HOST` | Backend | `127.0.0.1` / `0.0.0.0` | Server bind host address |
-| `MACHSENSE_CORS_ORIGINS` | Backend | `["*"]` | Allowed CORS origins (e.g. `http://localhost:3000`) |
+| `PORT` | Backend | `8000` | Server port (injected dynamically by Render / PaaS) |
+| `HOST` | Backend | `127.0.0.1` / `0.0.0.0` | Server bind host address (`0.0.0.0` in cloud) |
+| `MACHSENSE_CORS_ORIGINS` | Backend | `["*"]` | Allowed CORS origins (e.g. `https://your-app.vercel.app`) |
+| `MACHSENSE_CORS_REGEX` | Backend | `None` | Optional regex for CORS (e.g. `https://.*\.vercel\.app`) |
+| `PYTHONPATH` | Backend | `./src` | Python module import path |
+| `WEB_CONCURRENCY` | Backend | `1` | Number of Uvicorn worker processes (1 for Free Tier) |
 | `MACHSENSE_MODELS_DIR` | Backend | `models` | Custom directory path for model artifacts |
 
 ---

@@ -80,7 +80,7 @@ export default function MachineDetailPage({
       setError(
         err instanceof Error
           ? err.message
-          : "Inference failed. Verify the FastAPI backend is running on http://127.0.0.1:8000"
+          : "Inference failed. Verify the FastAPI backend is running and accessible."
       );
     } finally {
       setLoading(false);

@@ -104,6 +104,7 @@ class ServingConfig(BaseModel):
     workers: int = 1
     reload: bool = True
     cors_origins: List[str] = Field(default_factory=lambda: ["*"])
+    cors_origin_regex: Optional[str] = None
     api_prefix: str = "/api/v1"
 
 
@@ -184,6 +185,10 @@ def load_config(config_path: Optional[Path | str] = None) -> AppConfig:
                 serving_dict["cors_origins"] = [orig.strip() for orig in cors_env.split(",") if orig.strip()]
         else:
             serving_dict["cors_origins"] = [orig.strip() for orig in cors_env.split(",") if orig.strip()]
+
+    cors_regex_env = os.environ.get("MACHSENSE_CORS_REGEX")
+    if cors_regex_env:
+        serving_dict["cors_origin_regex"] = cors_regex_env.strip()
 
     # Path overrides
     paths_dict = raw_dict.setdefault("paths", {})

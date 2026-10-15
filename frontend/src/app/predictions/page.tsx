@@ -84,7 +84,7 @@ export default function PredictionsPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Prediction request failed. Ensure the FastAPI backend server is active on http://127.0.0.1:8000"
+          : "Prediction request failed. Ensure the FastAPI backend server is active and accessible."
       );
     } finally {
       setLoading(false);

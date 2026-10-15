@@ -74,6 +74,11 @@ models/*.pth
 models/*.onnx
 models/*.h5
 !models/.gitkeep
+# Allow tracked lightweight production champion model artifacts (<2MB)
+!models/best_model.joblib
+!models/preprocessor.joblib
+!models/machsense_model_v1.0.0.joblib
+!models/machsense_preprocessor_v1.0.0.joblib
 
 # Logs and outputs
 logs/

@@ -6,7 +6,7 @@ services:
     runtime: python
     region: oregon
     plan: free
-    buildCommand: pip install -U pip && pip install -r requirements.txt
+    buildCommand: pip install -U pip && pip install -r requirements.txt && pip install -e .
     startCommand: uvicorn machsense.api.app:app --host 0.0.0.0 --port $PORT --workers 1
     healthCheckPath: /health/ready
     envVars:
@@ -16,3 +16,6 @@ services:
         value: production
       - key: PYTHONPATH
         value: ./src
+      - key: MACHSENSE_CORS_ORIGINS
+        value: '["http://localhost:3000","http://127.0.0.1:3000"]'
+
