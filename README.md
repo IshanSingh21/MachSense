@@ -6,8 +6,11 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![SHAP](https://img.shields.io/badge/Explainability-TreeSHAP-brightgreen.svg)](https://github.com/slundberg/shap)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
-[![Tests: 126 Passed](https://img.shields.io/badge/tests-126%20passed-success.svg)](tests/)
+[![Tests: 124 Passed](https://img.shields.io/badge/tests-124%20passed-success.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-mach--sense.vercel.app-000000?logo=vercel&logoColor=white)](https://mach-sense.vercel.app/)
+
+> 🚀 **Live Application**: [https://mach-sense.vercel.app/](https://mach-sense.vercel.app/)
 
 **MachSense** is an enterprise-grade predictive maintenance and machine health monitoring system. It processes real-time industrial telemetry (temperature gradients, spindle speeds, mechanical torque, cutting tool wear), computes physics-informed features, forecasts catastrophic machine failure with cost-calibrated decision thresholds ($\tau = 0.5608$), and provides root-cause diagnostic explanations using TreeSHAP on a modern **Next.js Industrial Control Center**.
 
@@ -181,6 +184,8 @@ SHAP attribution coefficients are automatically mapped to actionable shop-floor 
 ## Next.js Industrial Control Center
 
 The frontend provides a mission-control industrial dashboard:
+* **Live Web App**: [https://mach-sense.vercel.app/](https://mach-sense.vercel.app/)
+* **Local Development**: [http://localhost:3000](http://localhost:3000)
 
 ```
 +------------------------------------------------------------------------------------+
@@ -214,9 +219,10 @@ The frontend provides a mission-control industrial dashboard:
 ## Serving Layer & FastAPI Documentation
 
 The FastAPI backend provides robust, sub-10ms endpoints:
-- **FastAPI Backend API**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-- **FastAPI Interactive Docs (Swagger UI)**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **FastAPI Alternative Docs (ReDoc)**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+- **Production API**: [https://machsense.onrender.com](https://machsense.onrender.com)
+- **Production Swagger UI**: [https://machsense.onrender.com/docs](https://machsense.onrender.com/docs)
+- **Production ReDoc**: [https://machsense.onrender.com/redoc](https://machsense.onrender.com/redoc)
+- **Local Backend**: [http://127.0.0.1:8000](http://127.0.0.1:8000) (Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs))
 
 ### Core Endpoints
 
@@ -377,11 +383,15 @@ Deploy the Next.js modern control center to Vercel:
    Add the following environment variable under **Settings -> Environment Variables**:
    | Variable | Value | Description |
    | :--- | :--- | :--- |
-   | `NEXT_PUBLIC_API_URL` | `https://your-machsense-api.onrender.com` | Your public Render FastAPI URL (no trailing slash) |
+   | `NEXT_PUBLIC_API_URL` | `https://machsense.onrender.com` | Your public Render FastAPI backend URL (no trailing slash) |
 
-4. **Deploy**:
-   - Click **Deploy**. Vercel will build and assign your production URL (e.g., `https://machsense-xyz.vercel.app`).
-   - Copy this URL and update `MACHSENSE_CORS_ORIGINS` in your Render backend settings.
+4. **Production Deployments**:
+   - **Frontend App**: [https://mach-sense.vercel.app/](https://mach-sense.vercel.app/)
+   - **FastAPI API**: [https://machsense.onrender.com](https://machsense.onrender.com)
+   - Set `MACHSENSE_CORS_ORIGINS` on Render to:
+     ```text
+     https://mach-sense.vercel.app,http://localhost:3000
+     ```
 
 ---
 
